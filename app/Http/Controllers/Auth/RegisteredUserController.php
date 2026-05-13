@@ -46,6 +46,8 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        $request->session()->flash('success', 'Account created successfully! Welcome to Attendly.');
+
         return redirect(route('dashboard', absolute: false));
     }
 }

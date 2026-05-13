@@ -301,6 +301,148 @@
         .alert { padding: .9rem 1.2rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: .875rem; display: flex; align-items: center; gap: .6rem; }
         .alert-success { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; }
         .alert-error   { background: #fee2e2; border: 1px solid #fecaca; color: #991b1b; }
+
+        /* ── Toast Notifications ──────────────────────────────────── */
+        .toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            pointer-events: none;
+            max-width: 420px;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            animation: slideInToast 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: auto;
+            border-left: 4px solid;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .toast.hide {
+            animation: slideOutToast 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .toast-success {
+            border-left-color: #22c55e;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+            color: #166534;
+        }
+
+        .toast-error {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+            color: #991b1b;
+        }
+
+        .toast-warning {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+            color: #92400e;
+        }
+
+        .toast-info {
+            border-left-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            color: #1e40af;
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-success .toast-icon { color: #22c55e; }
+        .toast-error .toast-icon { color: #ef4444; }
+        .toast-warning .toast-icon { color: #f59e0b; }
+        .toast-info .toast-icon { color: #3b82f6; }
+
+        .toast-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .toast-message {
+            font-size: 0.875rem;
+            opacity: 0.85;
+        }
+
+        .toast-close {
+            flex-shrink: 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem;
+            color: inherit;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideInToast {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutToast {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .toast-container {
+                top: 1rem;
+                right: 1rem;
+                left: 1rem;
+                max-width: none;
+            }
+
+            .toast {
+                padding: 0.875rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
         
         /* Badges */
         .badge { display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .7rem; border-radius: 20px; font-size: .72rem; font-weight: 600; }
@@ -685,10 +827,6 @@
         </div>
         
         <div class="nav-right">
-            <button class="nav-icon-btn">
-                <i data-lucide="bell" data-size="18"></i>
-                <span class="nav-icon-badge"></span>
-            </button>
             <div style="position: relative; display: inline-block;">
                 <button class="user-profile-btn" onclick="document.getElementById('user-dropdown').classList.toggle('show')">
                     <div class="user-avatar">
@@ -796,19 +934,13 @@
 
     {{-- Main Content --}}
     <div class="main-wrap">
-        {{-- Flash Messages --}}
-        <div style="padding: 0 5%; position: absolute; top: 80px; left: 0; right: 0; z-index: 100; pointer-events: none;">
-            @if(session('success'))
-                <div class="alert alert-success" style="pointer-events: auto; max-width: 600px; margin: 0 auto 1rem;">
-                    <i data-lucide="check-circle-2" data-size="18" style="color:#166534;"></i> {{ session('success') }}
-                </div>
-            @endif
-            @if(session('error'))
-                <div class="alert alert-error" style="pointer-events: auto; max-width: 600px; margin: 0 auto 1rem;">
-                    <i data-lucide="x-circle" data-size="18" style="color:#991b1b;"></i> {{ session('error') }}
-                </div>
-            @endif
-        </div>
+        {{-- Hidden Flash Message Elements (for toast conversion) --}}
+        @if(session('success'))
+            <div class="alert alert-success" style="display: none;">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-error" style="display: none;">{{ session('error') }}</div>
+        @endif
 
         {{-- Content Skeleton Loading - Dashboard --}}
         <div class="content-skeleton skeleton-dashboard" data-skeleton-type="dashboard" style="padding: 2rem 5%;">
@@ -938,5 +1070,161 @@
             hydrateLucide();
         }
     </script>
-</body>
-</html>
+
+    {{-- Toast Container --}}
+    <div id="toast-container" class="toast-container"></div>
+
+    {{-- Auth Status Tracker --}}
+    <meta id="auth-status" content="{{ Auth::check() ? 'authenticated' : 'guest' }}">
+
+    {{-- Global Toast System --}}
+    <script>
+        class ToastNotification {
+            static DEFAULT_DURATION = 4000;
+            static icons = {
+                success: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+                error: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+                warning: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3.05h16.94a2 2 0 0 0 1.71-3.05L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+                info: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
+            };
+
+            static show(message, type = 'info', title = null, duration = this.DEFAULT_DURATION) {
+                const container = document.getElementById('toast-container') || this.createContainer();
+                const toast = document.createElement('div');
+                const id = 'toast-' + Date.now();
+                
+                toast.id = id;
+                toast.className = `toast toast-${type}`;
+                toast.innerHTML = `
+                    <div class="toast-icon">${this.icons[type] || this.icons.info}</div>
+                    <div class="toast-content">
+                        ${title ? `<div class="toast-title">${title}</div>` : ''}
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    <button class="toast-close" aria-label="Close notification" onclick="document.getElementById('${id}').remove()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                `;
+                
+                container.appendChild(toast);
+
+                if (duration > 0) {
+                    setTimeout(() => {
+                        if (document.getElementById(id)) {
+                            toast.classList.add('hide');
+                            setTimeout(() => toast.remove(), 300);
+                        }
+                    }, duration);
+                }
+
+                return toast;
+            }
+
+            static success(message, title = 'Success', duration = this.DEFAULT_DURATION) {
+                return this.show(message, 'success', title, duration);
+            }
+
+            static error(message, title = 'Error', duration = this.DEFAULT_DURATION) {
+                return this.show(message, 'error', title, duration);
+            }
+
+            static warning(message, title = 'Warning', duration = this.DEFAULT_DURATION) {
+                return this.show(message, 'warning', title, duration);
+            }
+
+            static info(message, title = 'Info', duration = this.DEFAULT_DURATION) {
+                return this.show(message, 'info', title, duration);
+            }
+
+            static createContainer() {
+                const container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+                return container;
+            }
+        }
+
+        // Show flash messages as toasts on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const successAlert = document.querySelector('.alert-success');
+            const errorAlert = document.querySelector('.alert-error');
+
+            if (successAlert) {
+                const message = successAlert.textContent.trim();
+                if (message) {
+                    ToastNotification.success(message, 'Success');
+                }
+            }
+
+            if (errorAlert) {
+                const message = errorAlert.textContent.trim();
+                if (message) {
+                    ToastNotification.error(message, 'Error');
+                }
+            }
+
+            // Handle logout form submission
+            const logoutForms = document.querySelectorAll('form[action*="logout"]');
+            logoutForms.forEach(form => {
+                form.addEventListener('submit', (e) => {
+                    // Show logout toast
+                    ToastNotification.success('You have been signed out successfully', 'Signed Out');
+                });
+            });
+
+            // Detect login by checking if we're now authenticated
+            const authStatus = document.getElementById('auth-status');
+            if (authStatus && authStatus.content === 'authenticated') {
+                // Check if there's no error alert and no success alert
+                // This means fresh login
+                const hasAlerts = document.querySelector('.alert-success, .alert-error');
+                if (!hasAlerts) {
+                    // Don't show on initial page load, only on redirect after login
+                    const isLoginPage = window.location.pathname.includes('login') || 
+                                       window.location.pathname === '/' ||
+                                       window.location.pathname.includes('auth');
+                    const isFirstVisit = sessionStorage.getItem('isFirstVisit');
+                    
+                    if (!isLoginPage && !isFirstVisit) {
+                        // Likely redirected here after login
+                        // Only show if coming from auth page
+                        const referrer = document.referrer;
+                        if (referrer && referrer.includes('login')) {
+                            ToastNotification.success('Welcome back! You have been signed in successfully', 'Signed In');
+                        }
+                    }
+                    sessionStorage.setItem('isFirstVisit', 'false');
+                }
+            }
+
+            // Handle form submissions for general success/error feedback
+            const forms = document.querySelectorAll('form[method="POST"]');
+            forms.forEach(form => {
+                form.addEventListener('submit', () => {
+                    // Optional: Show a "processing" toast
+                    // ToastNotification.info('Processing...', 'Please wait', -1);
+                });
+            });
+
+            // Intercept fetch requests (for API calls)
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                return originalFetch.apply(this, args)
+                    .then(response => {
+                        if (!response.ok && response.status !== 401 && response.status !== 403) {
+                            // Could show error toast here if needed
+                        }
+                        return response;
+                    })
+                    .catch(error => {
+                        // Show error on network issues
+                        ToastNotification.error(error.message || 'Network error occurred', 'Error');
+                        throw error;
+                    });
+            };
+        });
+
+        // Make ToastNotification globally accessible
+        window.Toast = ToastNotification;
+    </script>

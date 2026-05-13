@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,10 +16,19 @@ class ReportController extends Controller
             'section'   => ['nullable', 'string', 'max:50'],
         ]);
 
-        $teacher    = Auth::user();
+        $teacher = Auth::user();
+        if (! $teacher) {
+            abort(403);
+        }
+
         $dateFrom   = $request->input('date_from', now()->startOfMonth()->toDateString());
         $dateTo     = $request->input('date_to',   now()->toDateString());
         $section    = $request->input('section');
+
+        // Show success flash message when filters are applied (form submitted)
+        if ($request->filled('date_from') || $request->filled('date_to') || $request->filled('section')) {
+            $request->session()->flash('success', 'Report generated successfully for ' . \Carbon\Carbon::parse($dateFrom)->format('F j') . ' to ' . \Carbon\Carbon::parse($dateTo)->format('F j, Y') . '.');
+        }
 
         $query = Student::where('user_id', $teacher->id);
         if ($section) {

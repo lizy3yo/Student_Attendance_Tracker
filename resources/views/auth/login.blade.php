@@ -50,13 +50,11 @@
         </button>
     </form>
 
-    <div class="auth-footer">
+    <div class="auth-footer" style="text-align: center;">
         @if (Route::has('password.request'))
-            <a class="auth-link" href="{{ route('password.request') }}">Forgot your password?</a>
-            &nbsp;·&nbsp;
+            <div style="margin-bottom: .25rem;"><a class="auth-link" href="{{ route('password.request') }}">Forgot your password?</a></div>
         @endif
-        Don't have an account?
-        <a class="auth-link" href="{{ route('register') }}">Register</a>
+        <div>Don't have an account? <a class="auth-link" href="{{ route('register') }}">Register</a></div>
     </div>
 
     <script>

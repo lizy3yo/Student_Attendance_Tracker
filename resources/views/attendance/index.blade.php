@@ -294,6 +294,10 @@
                 })
                 .then(data => {
                     if (saveStatus) saveStatus.textContent = '✓ Saved';
+                    // Show success toast
+                    if (window.Toast && typeof window.Toast.success === 'function') {
+                        window.Toast.success(data.message || 'Attendance saved successfully.', 'Success');
+                    }
                     setTimeout(() => {
                         if (saveStatus) saveStatus.textContent = originalText;
                         if (saveBtn) saveBtn.disabled = false;
@@ -302,6 +306,10 @@
                 .catch(error => {
                     console.error('Error:', error);
                     if (saveStatus) saveStatus.textContent = '✗ ' + error.message;
+                    // Show error toast
+                    if (window.Toast && typeof window.Toast.error === 'function') {
+                        window.Toast.error(error.message || 'Error saving attendance.', 'Error');
+                    }
                     if (saveBtn) saveBtn.disabled = false;
                 });
             }

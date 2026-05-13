@@ -28,6 +28,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $request->session()->flash('success', 'Welcome back! You have been signed in successfully.');
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -42,6 +44,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
+        // Flash message will be shown via JavaScript on logout form submission
         return redirect('/');
     }
 }

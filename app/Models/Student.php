@@ -5,6 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int|null $reportTotal
+ * @property int|null $reportPresent
+ * @property int|null $reportAbsent
+ * @property int|null $reportLate
+ * @property float|null $reportPercent
+ *
+ * Dynamic properties added at runtime (used by controller with `withCount`):
+ * @property int|null $period_total
+ * @property int|null $period_present
+ * @property float|null $period_pct
+ *
+ * Accessors:
+ * @property-read string $full_name
+ */
 class Student extends Model
 {
     use HasFactory;
