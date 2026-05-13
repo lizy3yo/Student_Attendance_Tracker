@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ trim(($title ?? '') . ' – Student Attendance Tracker') }}</title>
+    <title>{{ trim(($title ?? '') . ' – Attendly') }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -62,8 +62,8 @@
         }
         .auth-logo-text{font-size:1.2rem;font-weight:800;color:var(--text-main);}
         .auth-logo-sub{font-size:.7rem;color:var(--text-muted);font-weight:500;}
-        .auth-title{font-size:1.05rem;font-weight:800;color:var(--text-main);margin-bottom:.3rem;}
-        .auth-sub{font-size:.82rem;color:var(--text-muted);margin-bottom:1.75rem;line-height:1.4;}
+        .auth-title{font-size:1.05rem;font-weight:800;color:var(--text-main);margin-bottom:.3rem;text-align:center;}
+        .auth-sub{font-size:.82rem;color:var(--text-muted);margin-bottom:1.75rem;line-height:1.4;text-align:center;}
 
         .form-group{margin-bottom:1.1rem;}
         .form-label{display:block;font-size:.75rem;font-weight:600;color:var(--text-muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
@@ -114,9 +114,9 @@
 <body>
     <div class="auth-card">
         <div class="auth-logo">
-            <div class="auth-logo-icon">A</div>
+            <div class="auth-logo-icon"><i data-lucide="clipboard-check" data-size="20"></i></div>
             <div>
-                <div class="auth-logo-text">Attenad</div>
+                <div class="auth-logo-text">Attendly</div>
                 <div class="auth-logo-sub">Student Attendance Tracker</div>
             </div>
         </div>

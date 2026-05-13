@@ -176,11 +176,11 @@
 
     {{-- Legend --}}
     <div style="margin-top:1rem;padding:1rem 1.25rem;background:var(--surface);border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-card);display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted);">
-        <span>
+        <span style="display:inline-flex;align-items:center;gap:.35rem;">
             <i data-lucide="pin" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
             <strong style="color:var(--text);">Threshold:</strong> ≥75% = Good &nbsp;|&nbsp; 50–74% = At Risk &nbsp;|&nbsp; &lt;50% = Critical
         </span>
-        <span>
+        <span style="display:inline-flex;align-items:center;gap:.35rem;">
             <i data-lucide="calendar" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
             <strong style="color:var(--text);">Period:</strong> {{ \Carbon\Carbon::parse($dateFrom)->format('F j') }} – {{ \Carbon\Carbon::parse($dateTo)->format('F j, Y') }}
         </span>

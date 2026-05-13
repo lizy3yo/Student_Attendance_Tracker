@@ -88,7 +88,7 @@
     {{-- Table --}}
     <div class="card">
         <div class="card-header">
-            <span class="card-title">
+            <span class="card-title" style="display:flex;align-items:center;gap:.5rem;">
                 <i data-lucide="users" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
                 All Students
             </span>

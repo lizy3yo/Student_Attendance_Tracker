@@ -1,9 +1,9 @@
 <x-guest-layout>
     <x-slot name="title">Register</x-slot>
 
-    <div class="auth-title">
-        Create an account
-        <i data-lucide="graduation-cap" data-size="18" style="margin-left:.35rem;vertical-align:middle;"></i>
+    <div class="auth-title" style="display:flex;align-items:center;justify-content:center;gap:.4rem;">
+        <i data-lucide="graduation-cap" data-size="18"></i>
+        <span>Create an account</span>
     </div>
     <div class="auth-sub">Register a new teacher account to get started</div>
 
@@ -29,7 +29,7 @@
         <div class="form-group">
             <label class="form-label" for="password">Password</label>
             <input class="form-control" id="password" type="password" name="password"
-                   placeholder="Min. 8 characters" required autocomplete="new-password">
+                   placeholder="Min. 8 chars, upper/lower, number, special" required autocomplete="new-password">
             @error('password')<div class="form-error">{{ $message }}</div>@enderror
         </div>
 
@@ -41,9 +41,9 @@
             @error('password_confirmation')<div class="form-error">{{ $message }}</div>@enderror
         </div>
 
-        <button class="btn-auth" type="submit">
-            Create Account
-            <i data-lucide="arrow-right" data-size="18" style="margin-left:.35rem;vertical-align:middle;"></i>
+        <button class="btn-auth" type="submit" style="display:flex;align-items:center;justify-content:center;position:relative;">
+            <i data-lucide="arrow-right" data-size="18" style="position:absolute;left:1rem;"></i>
+            <span>Create Account</span>
         </button>
     </form>
 

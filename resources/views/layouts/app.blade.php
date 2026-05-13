@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Attenad' }} – Student Attendance Tracker</title>
+    <title>{{ $title ?? 'Attendly' }} – Student Attendance Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -111,29 +111,6 @@
             align-items: center;
             gap: 1.5rem;
         }
-        .search-container {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            padding: 0.4rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            width: 250px;
-            transition: background 0.2s;
-        }
-        .search-container:focus-within {
-            background: rgba(255, 255, 255, 0.15);
-        }
-        .search-input {
-            background: transparent;
-            border: none;
-            color: white;
-            outline: none;
-            width: 100%;
-            font-size: 0.85rem;
-            font-family: inherit;
-        }
-        .search-input::placeholder { color: #9ca3af; }
         .nav-icon-btn {
             background: none;
             border: none;
@@ -406,6 +383,57 @@
             color: white;
             font-weight: 600;
         }
+
+        body.nav-loading .logo,
+        body.nav-loading .nav-link,
+        body.nav-loading .nav-icon-btn,
+        body.nav-loading .user-avatar,
+        body.nav-loading .mobile-menu-btn,
+        body.nav-loading .mobile-nav-link,
+        body.nav-loading .mobile-close-btn {
+            color: transparent !important;
+            background: linear-gradient(90deg, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.18) 37%, rgba(255,255,255,0.08) 63%);
+            background-size: 400% 100%;
+            animation: navSkeletonShimmer 1.2s ease-in-out infinite;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        body.nav-loading .logo-icon,
+        body.nav-loading .nav-icon-btn i,
+        body.nav-loading .mobile-menu-btn i,
+        body.nav-loading .mobile-close-btn i {
+            opacity: 0;
+        }
+
+        body.nav-loading .logo {
+            min-width: 120px;
+            min-height: 30px;
+        }
+
+        body.nav-loading .nav-link {
+            min-width: 88px;
+            height: 18px;
+        }
+
+        body.nav-loading .nav-icon-btn {
+            width: 36px;
+            height: 36px;
+        }
+
+        body.nav-loading .user-avatar {
+            width: 36px;
+            height: 36px;
+        }
+
+        body.nav-loading .mobile-nav-link {
+            min-height: 20px;
+        }
+
+        @keyframes navSkeletonShimmer {
+            0% { background-position: 100% 0; }
+            100% { background-position: 0 0; }
+        }
         
         @media (max-width: 992px) {
             .nav-links, .search-container { display: none; }
@@ -420,14 +448,14 @@
         }
     </style>
 </head>
-<body>
+<body class="nav-loading">
 
     {{-- Top Navigation --}}
     <nav class="topbar">
         <div class="nav-left">
             <a href="{{ route('dashboard') }}" class="logo">
-                <div class="logo-icon">A</div>
-                Attenad
+                <div class="logo-icon"><i data-lucide="clipboard-check" data-size="18"></i></div>
+                Attendly
             </a>
             <div class="nav-links">
                 <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Overview</a>
@@ -438,16 +466,9 @@
         </div>
         
         <div class="nav-right">
-            <div class="search-container">
-                <i data-lucide="search" data-size="18" style="color:#9ca3af;"></i>
-                <input type="text" class="search-input" placeholder="Search...">
-            </div>
             <button class="nav-icon-btn">
                 <i data-lucide="bell" data-size="18"></i>
                 <span class="nav-icon-badge"></span>
-            </button>
-            <button class="nav-icon-btn">
-                <i data-lucide="settings" data-size="18"></i>
             </button>
             <div style="position: relative; display: inline-block;">
                 <button class="user-profile-btn" onclick="document.getElementById('user-dropdown').classList.toggle('show')">
@@ -475,6 +496,12 @@
     <style>
         #user-dropdown.show { display: block !important; }
     </style>
+
+    <script>
+        window.addEventListener('load', () => {
+            document.body.classList.remove('nav-loading');
+        });
+    </script>
 
     {{-- Mobile Sidebar --}}
     <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>

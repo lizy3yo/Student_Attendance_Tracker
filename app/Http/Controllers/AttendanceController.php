@@ -17,12 +17,13 @@ class AttendanceController extends Controller
         $teacher = Auth::user();
 
         $students = Student::where('user_id', $teacher->id)
+            ->with(['attendances' => function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            }])
             ->orderBy('last_name')
             ->get()
-            ->map(function ($student) use ($date) {
-                $student->attendanceRecord = $student->attendances()
-                    ->where('date', $date)
-                    ->first();
+            ->map(function ($student) {
+                $student->attendanceRecord = $student->attendances->first();
                 return $student;
             });
 
