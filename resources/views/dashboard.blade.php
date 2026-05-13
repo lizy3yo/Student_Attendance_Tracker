@@ -16,22 +16,6 @@
                     </p>
                 </div>
             </div>
-            <div class="hero-actions">
-                <select class="hero-select" aria-label="Filter by class">
-                    <option value="all">All Classes</option>
-                </select>
-                <div class="hero-select-wrap">
-                    <select class="hero-select hero-select--calendar" aria-label="Date range">
-                        <option value="30">Last 30 days</option>
-                    </select>
-                    <span class="hero-select-icon" aria-hidden="true">
-                        <i data-lucide="calendar" data-size="16" style="display:inline-block;vertical-align:middle;"></i>
-                    </span>
-                </div>
-                <button type="button" class="btn btn-primary hero-filter-btn">
-                    Filter
-                </button>
-            </div>
         </div>
     </div>
 
@@ -93,37 +77,6 @@
             letter-spacing: -0.01em;
         }
         .hero-subtitle { color: #d1d5db; font-size: clamp(0.875rem, 1.6vw, 0.9375rem); line-height: 1.45; margin: 0; }
-        .hero-actions {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .hero-select-wrap { position: relative; display: inline-flex; align-items: center; }
-        .hero-select-icon {
-            position: absolute;
-            right: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            color: #9ca3af;
-            font-size: 0.875rem;
-        }
-        .hero-select {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 0.5625rem 2.25rem 0.5625rem 0.875rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            appearance: none;
-            outline: none;
-            cursor: pointer;
-            font-family: inherit;
-            min-height: 2.625rem;
-        }
-        .hero-select--calendar { padding-right: 2.5rem; }
-        .hero-filter-btn { padding: 0.5625rem 1.125rem; font-weight: 600; font-size: 0.875rem; white-space: nowrap; min-height: 2.625rem; }
 
         /* Layout Grids — consistent gutters */
         .stat-grid-modern {
@@ -147,7 +100,7 @@
             justify-content: flex-start;
             position: relative;
             border: 1px solid #e5e7eb;
-            min-height: 5.5rem;
+            min-height: clamp(5rem, 12vw, 5.5rem);
         }
 
         .stat-card-main {
@@ -469,6 +422,7 @@
             .dashboard-page {
                 --hero-overlap: clamp(2.5rem, 6.5vw, 3.75rem);
                 --hero-tail: clamp(1.75rem, 4.5vw, 2.75rem);
+                --card-pad: clamp(0.875rem, 2vw, 1.25rem);
             }
             .stat-grid-modern { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .dashboard-grid-bottom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -477,25 +431,54 @@
         @media (max-width: 992px) {
             .dashboard-grid { grid-template-columns: 1fr; }
             .dashboard-grid-bottom { grid-template-columns: 1fr; }
+            .stat-grid-modern { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .modern-stat-card { padding: 0.75rem; padding-right: 1.75rem; min-height: 4.75rem; }
+            .stat-icon-circle { width: 40px; height: 40px; min-width: 40px; }
+            .stat-number { font-size: 1.375rem; }
+            .modern-card { padding: 1rem; }
+            .modern-card-header { margin-bottom: 1rem; }
+            .modern-card-title { font-size: 0.9375rem; }
+            .card-menu { font-size: 0.75rem; }
+            .chart-line-inner { height: clamp(200px, 25vw, 240px); }
+            .chart-h-scroll-slab { min-width: 550px; }
+            .chart-x-labels { font-size: 0.75rem; }
         }
 
         @media (max-width: 768px) {
             .dashboard-page {
                 --hero-overlap: clamp(1.75rem, 5vw, 2.5rem);
                 --hero-tail: clamp(1.5rem, 5vw, 2.5rem);
+                --stat-pad: 0.625rem 0.75rem;
+                --dash-gap: 0.75rem;
+                --card-pad: 0.75rem;
+                --fs-card-title: 0.875rem;
             }
             .hero-content { flex-direction: column; align-items: stretch; }
-            .hero-actions { width: 100%; margin-top: 0.75rem; }
-            .hero-actions .hero-select-wrap,
-            .hero-actions .hero-select:not(.hero-select--calendar) { flex: 1; min-width: 0; }
-            .hero-actions .hero-select { width: 100%; }
-            .hero-filter-btn { flex: 1; justify-content: center; }
-            .stat-grid-modern { grid-template-columns: 1fr; gap: var(--dash-gap); }
-            .chart-h-scroll-slab { min-width: 520px; }
+            .stat-grid-modern { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+            .modern-stat-card { padding-right: 1.5rem; min-height: 4.5rem; }
+            .stat-icon-circle { width: 36px; height: 36px; min-width: 36px; font-size: 1.125rem; }
+            .stat-card-main { gap: 0.625rem; }
+            .stat-number { font-size: 1.25rem; }
+            .stat-label { font-size: 0.6rem; }
+            .modern-stat-card .dots { font-size: 0.75rem; top: 0.5rem; right: 0.5rem; }
+            .modern-card { padding: 0.75rem; }
+            .modern-card-header { margin-bottom: 0.875rem; gap: 0.5rem; }
+            .modern-card-title { font-size: 0.875rem; }
+            .card-menu { font-size: 0.7rem; }
+            .chart-line-inner { height: clamp(180px, 50vw, 220px); }
+            .chart-h-scroll-slab { min-width: 480px; }
+            .chart-x-labels { font-size: 0.7rem; gap: 0.25rem 0.375rem; }
+            .chart-x-labels--below { margin-top: 0.5rem; }
         }
 
         @media (max-width: 480px) {
-            .hero-filter-btn { width: 100%; }
+            .modern-card { padding: 0.625rem; }
+            .modern-card-header { margin-bottom: 0.75rem; }
+            .modern-card-title { font-size: 0.8125rem; }
+            .card-menu { font-size: 0.65rem; }
+            .chart-line-inner { height: clamp(150px, 45vw, 200px); }
+            .chart-h-scroll-slab { min-width: 420px; }
+            .chart-x-labels { font-size: 0.625rem; }
             .attendant-meta .attendant-name { font-size: 0.8125rem; }
         }
     </style>

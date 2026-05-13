@@ -154,7 +154,7 @@
         }
 
         /* ── Main Layout ────────────────────────────────────── */
-        .main-wrap { flex: 1; display: flex; flex-direction: column; width: 100%; }
+        .main-wrap { flex: 1; display: flex; flex-direction: column; width: 100%; position: relative; }
         
         /* ── Global Utility Classes ─────────────────────────── */
         .card { background: var(--surface); border-radius: 12px; box-shadow: var(--shadow-card); border: 1px solid var(--border-color); }
@@ -434,17 +434,236 @@
             0% { background-position: 100% 0; }
             100% { background-position: 0 0; }
         }
-        
+
+        /* ── Content Skeleton Loading ──────────────────────────────────── */
+        .main-wrap.content-loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .content-skeleton {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-body);
+            z-index: 30;
+            overflow-y: auto;
+        }
+
+        .main-wrap.content-loading .content-skeleton {
+            display: block;
+        }
+
+        .content-skeleton[data-skeleton-type="hidden"] {
+            display: none !important;
+        }
+
+        .skeleton-block {
+            background: linear-gradient(90deg, rgba(0,0,0,0.08) 25%, rgba(0,0,0,0.15) 37%, rgba(0,0,0,0.08) 63%);
+            background-size: 400% 100%;
+            animation: skeletonShimmer 1.2s ease-in-out infinite;
+            border-radius: 8px;
+        }
+
+        /* Dashboard Skeleton */
+        .skeleton-dashboard .skeleton-hero {
+            height: 100px;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .skeleton-dashboard .skeleton-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .skeleton-dashboard .skeleton-card {
+            height: 100px;
+            border-radius: 12px;
+        }
+
+        .skeleton-dashboard .skeleton-chart {
+            height: 280px;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+        }
+
+        .skeleton-dashboard .skeleton-list-item {
+            height: 45px;
+            margin-bottom: 0.75rem;
+            border-radius: 8px;
+        }
+
+        /* Table Skeleton (Attendance & Students) */
+        .skeleton-table {
+            padding: 1.5rem;
+        }
+
+        .skeleton-table-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .skeleton-table-header-cell {
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .skeleton-table-rows {
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .skeleton-table-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            align-items: center;
+        }
+
+        .skeleton-table-row:last-child {
+            border-bottom: none;
+        }
+
+        .skeleton-table-cell {
+            height: 35px;
+            border-radius: 6px;
+        }
+
+        .skeleton-table-row .skeleton-table-cell:first-child {
+            min-width: 80px;
+        }
+
+        /* Reports Skeleton */
+        .skeleton-reports .skeleton-hero {
+            height: 80px;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .skeleton-reports .skeleton-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .skeleton-reports .skeleton-chart {
+            height: 320px;
+            border-radius: 12px;
+        }
+
+        @keyframes skeletonShimmer {
+            0% { background-position: 100% 0; }
+            100% { background-position: 0 0; }
+        }
+
         @media (max-width: 992px) {
-            .nav-links, .search-container { display: none; }
-            .mobile-menu-btn { display: block; }
-            .topbar { padding: 0 1.5rem; }
+            .skeleton-dashboard .skeleton-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .skeleton-table-header,
+            .skeleton-table-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .skeleton-reports .skeleton-row {
+                grid-template-columns: 1fr;
+            }
+
+            .skeleton-reports .skeleton-row .skeleton-chart {
+                height: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .skeleton-dashboard .skeleton-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .skeleton-dashboard .skeleton-chart {
+                height: 240px;
+            }
+
+            .skeleton-table-header,
+            .skeleton-table-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .skeleton-table-cell {
+                height: 30px;
+            }
+
+            .skeleton-table-header-cell {
+                height: 35px;
+            }
         }
         
         @media (max-width: 480px) {
-            .nav-icon-btn:not(:first-of-type) { display: none; }
+            .nav-links, .search-container { display: none; }
+            .mobile-menu-btn { display: block; }
             .topbar { padding: 0 1rem; }
             .logo { font-size: 1.1rem; gap: 0.4rem; }
+            .nav-icon-btn:not(:first-of-type) { display: none; }
+
+            .skeleton-dashboard .skeleton-hero {
+                height: 80px;
+            }
+
+            .skeleton-dashboard .skeleton-cards {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .skeleton-dashboard .skeleton-card {
+                height: 90px;
+            }
+
+            .skeleton-dashboard .skeleton-chart {
+                height: 200px;
+            }
+
+            .skeleton-table {
+                padding: 1rem;
+            }
+
+            .skeleton-table-header,
+            .skeleton-table-row {
+                grid-template-columns: 1fr;
+            }
+
+            .skeleton-table-row {
+                padding: 0.75rem;
+                gap: 0.5rem;
+            }
+
+            .skeleton-table-cell,
+            .skeleton-table-header-cell {
+                height: 28px;
+            }
+
+            .skeleton-reports .skeleton-hero {
+                height: 70px;
+            }
+
+            .skeleton-reports .skeleton-row {
+                grid-template-columns: 1fr;
+            }
+
+            .skeleton-reports .skeleton-chart {
+                height: 240px;
+            }
         }
     </style>
 </head>
@@ -501,6 +720,60 @@
         window.addEventListener('load', () => {
             document.body.classList.remove('nav-loading');
         });
+
+        // Add content skeleton loading on navigation
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
+            const mainWrap = document.querySelector('.main-wrap');
+            const skeletons = document.querySelectorAll('.content-skeleton');
+
+            function getSkeletonType(href) {
+                if (href.includes('dashboard') || href === '/') {
+                    return 'dashboard';
+                } else if (href.includes('attendance')) {
+                    return 'table';
+                } else if (href.includes('students')) {
+                    return 'table';
+                } else if (href.includes('reports')) {
+                    return 'reports';
+                }
+                return 'dashboard';
+            }
+
+            function showSkeleton(skeletonType) {
+                skeletons.forEach(skeleton => {
+                    const type = skeleton.getAttribute('data-skeleton-type');
+                    if (type === skeletonType) {
+                        skeleton.style.display = 'block';
+                    } else {
+                        skeleton.style.display = 'none';
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    // Don't trigger loading for the current page
+                    if (!link.classList.contains('active')) {
+                        const href = link.getAttribute('href');
+                        const skeletonType = getSkeletonType(href);
+                        
+                        if (mainWrap) {
+                            mainWrap.classList.add('content-loading');
+                            showSkeleton(skeletonType);
+                        }
+                    }
+                });
+            });
+
+            // Remove loading state when page fully loads
+            window.addEventListener('load', () => {
+                if (mainWrap) {
+                    mainWrap.classList.remove('content-loading');
+                    skeletons.forEach(skeleton => skeleton.style.display = 'none');
+                }
+            });
+        });
     </script>
 
     {{-- Mobile Sidebar --}}
@@ -535,6 +808,83 @@
                     <i data-lucide="x-circle" data-size="18" style="color:#991b1b;"></i> {{ session('error') }}
                 </div>
             @endif
+        </div>
+
+        {{-- Content Skeleton Loading - Dashboard --}}
+        <div class="content-skeleton skeleton-dashboard" data-skeleton-type="dashboard" style="padding: 2rem 5%;">
+            <div class="skeleton-block skeleton-hero"></div>
+            <div class="skeleton-cards">
+                <div class="skeleton-block skeleton-card"></div>
+                <div class="skeleton-block skeleton-card"></div>
+                <div class="skeleton-block skeleton-card"></div>
+                <div class="skeleton-block skeleton-card"></div>
+            </div>
+            <div class="skeleton-block skeleton-chart"></div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                <div class="skeleton-block skeleton-chart"></div>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div class="skeleton-block skeleton-list-item"></div>
+                    <div class="skeleton-block skeleton-list-item"></div>
+                    <div class="skeleton-block skeleton-list-item"></div>
+                    <div class="skeleton-block skeleton-list-item"></div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Content Skeleton Loading - Table (Attendance & Students) --}}
+        <div class="content-skeleton skeleton-table" data-skeleton-type="table" style="padding: 2rem 5%;">
+            <div class="skeleton-table-header">
+                <div class="skeleton-block skeleton-table-header-cell"></div>
+                <div class="skeleton-block skeleton-table-header-cell"></div>
+                <div class="skeleton-block skeleton-table-header-cell"></div>
+                <div class="skeleton-block skeleton-table-header-cell"></div>
+                <div class="skeleton-block skeleton-table-header-cell"></div>
+            </div>
+            <div class="skeleton-table-rows">
+                <div class="skeleton-table-row">
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                </div>
+                <div class="skeleton-table-row">
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                </div>
+                <div class="skeleton-table-row">
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                </div>
+                <div class="skeleton-table-row">
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                </div>
+                <div class="skeleton-table-row">
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                    <div class="skeleton-block skeleton-table-cell"></div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Content Skeleton Loading - Reports --}}
+        <div class="content-skeleton skeleton-reports" data-skeleton-type="reports" style="padding: 2rem 5%;">
+            <div class="skeleton-block skeleton-hero"></div>
+            <div class="skeleton-reports skeleton-row">
+                <div class="skeleton-block skeleton-chart"></div>
+                <div class="skeleton-block skeleton-chart"></div>
+            </div>
+            <div class="skeleton-reports skeleton-row">
+                <div class="skeleton-block skeleton-chart"></div>
+                <div class="skeleton-block skeleton-chart"></div>
+            </div>
         </div>
 
         {{-- Page Content --}}
