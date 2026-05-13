@@ -4,14 +4,58 @@
     <x-app-banner title="Student records">
         <x-slot name="subtitle">Manage all enrolled students in your class.</x-slot>
         <x-slot name="actions">
-            <a href="{{ route('students.create') }}" class="btn btn-primary">
+            <button
+                type="button"
+                class="btn btn-primary"
+                x-data=""
+                x-on:click.prevent="$dispatch('open-modal', 'create-student')"
+            >
                 <i data-lucide="plus" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
                 Add student
-            </a>
+            </button>
         </x-slot>
     </x-app-banner>
 
-    <div class="app-page">
+    <div class="app-page"
+        x-data="{
+            emailDomain: 'gordoncollege.edu.ph',
+            createStudent: {
+                student_id_number: @js(old('student_id_number','')),
+                email: @js(old('email',''))
+            },
+            editStudent: {
+                id: @js(old('edit_student_id', $editStudent?->id)),
+                student_id_number: @js(old('student_id_number', $editStudent?->student_id_number ?? '')),
+                first_name: @js(old('first_name', $editStudent?->first_name ?? '')),
+                last_name: @js(old('last_name', $editStudent?->last_name ?? '')),
+                section: @js(old('section', $editStudent?->section ?? '')),
+                email: @js(old('email', $editStudent?->email ?? ''))
+            },
+            syncCreateEmail() {
+                const id = (this.createStudent.student_id_number || '').trim();
+                this.createStudent.email = id ? `${id}@${this.emailDomain}` : '';
+            },
+            openEdit(id, studentIdNumber, firstName, lastName, section, email) {
+                this.editStudent = {
+                    id: id,
+                    student_id_number: studentIdNumber,
+                    first_name: firstName,
+                    last_name: lastName,
+                    section: section,
+                    email: email
+                }
+                $dispatch('open-modal', 'edit-student')
+            }
+        }"
+        x-init="
+            if (createStudent && createStudent.student_id_number && (!createStudent.email || createStudent.email.endsWith('@' + emailDomain))) {
+                syncCreateEmail()
+            }
+            if (editStudent && editStudent.id && !(@js($errors->any()) && @js(old('student_form')) === 'create')) {
+                $dispatch('open-modal', 'edit-student')
+            }
+        "
+    >
     <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-body" style="padding:1rem 1.5rem;">
             <form method="GET" action="{{ route('students.index') }}" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
@@ -22,7 +66,7 @@
                 </div>
                 <div style="min-width:160px;">
                     <label class="form-label">Section</label>
-                    <select class="form-control" name="section">
+                    <select class="form-control" name="section" onchange="this.form.submit()">
                         <option value="">All Sections</option>
                         @foreach($sections as $sec)
                             <option value="{{ $sec }}" {{ request('section') === $sec ? 'selected' : '' }}>{{ $sec }}</option>
@@ -30,10 +74,6 @@
                     </select>
                 </div>
                 <div style="display:flex;gap:.5rem;">
-                    <button class="btn btn-primary" type="submit">
-                        <i data-lucide="search" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
-                        Search
-                    </button>
                     @if(request()->hasAny(['search','section']))
                         <a href="{{ route('students.index') }}" class="btn btn-secondary">
                             <i data-lucide="x" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
@@ -62,7 +102,16 @@
                 </div>
                 <h3>No students found</h3>
                 <p>Add your first student to get started.</p>
-                <a href="{{ route('students.create') }}" class="btn btn-primary" style="margin-top:1rem;">Add Student</a>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    style="margin-top:1rem;"
+                    x-data=""
+                    x-on:click.prevent="$dispatch('open-modal', 'create-student')"
+                >
+                    <i data-lucide="plus" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                    Add Student
+                </button>
             </div>
         @else
             <div class="table-wrap">
@@ -115,11 +164,21 @@
                                 </td>
                                 <td style="text-align:center;">
                                     <div style="display:flex;gap:.4rem;justify-content:center;">
-                                        <a href="{{ route('students.edit', $student) }}"
-                                           class="btn btn-secondary btn-sm btn-icon"
-                                           data-tooltip="Edit">
+                                        <button
+                                            type="button"
+                                            class="btn btn-secondary btn-sm btn-icon"
+                                            data-tooltip="Edit"
+                                            x-on:click.prevent="openEdit(
+                                                @js($student->id),
+                                                @js($student->student_id_number),
+                                                @js($student->first_name),
+                                                @js($student->last_name),
+                                                @js($student->section),
+                                                @js($student->email)
+                                            )"
+                                        >
                                             <i data-lucide="edit-3" data-size="18"></i>
-                                        </a>
+                                        </button>
                                         <form method="POST" action="{{ route('students.destroy', $student) }}"
                                               onsubmit="return confirm('Remove {{ addslashes($student->full_name) }}? This will also delete their attendance records.')">
                                             @csrf @method('DELETE')
@@ -139,5 +198,225 @@
             </div>
         @endif
     </div>
-    </div>
+
+    <x-modal name="create-student" :show="$errors->any() && old('student_form') === 'create'" focusable maxWidth="2xl">
+        <form method="POST" action="{{ route('students.store') }}" class="p-6">
+            @csrf
+            <input type="hidden" name="student_form" value="create">
+
+            <div class="modern-card-header" style="margin-bottom:1rem;">
+                <h2 class="modern-card-title" style="font-size:1.05rem;">Add new student</h2>
+                <button type="button" class="btn btn-secondary btn-sm btn-icon" x-on:click="$dispatch('close')" aria-label="Close">
+                    <i data-lucide="x" data-size="18"></i>
+                </button>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="student_id_number">Student ID Number *</label>
+                    <input
+                        class="form-control"
+                        id="student_id_number"
+                        type="text"
+                        name="student_id_number"
+                        x-model="createStudent.student_id_number"
+                        x-on:input="syncCreateEmail()"
+                        placeholder="e.g. 2024-00123"
+                        required
+                    >
+                    @error('student_id_number')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="section">Section *</label>
+                    <input
+                        class="form-control"
+                        id="section"
+                        type="text"
+                        name="section"
+                        value="{{ old('section') }}"
+                        placeholder="e.g. BSIT-3A"
+                        required
+                    >
+                    @error('section')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="first_name">First Name *</label>
+                    <input
+                        class="form-control"
+                        id="first_name"
+                        type="text"
+                        name="first_name"
+                        value="{{ old('first_name') }}"
+                        placeholder="Juan"
+                        required
+                    >
+                    @error('first_name')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="last_name">Last Name *</label>
+                    <input
+                        class="form-control"
+                        id="last_name"
+                        type="text"
+                        name="last_name"
+                        value="{{ old('last_name') }}"
+                        placeholder="Dela Cruz"
+                        required
+                    >
+                    @error('last_name')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address (optional)</label>
+                <input
+                    class="form-control"
+                    id="email"
+                    type="email"
+                    name="email"
+                    x-model="createStudent.email"
+                    readonly
+                    placeholder="studentnumber@gordoncollege.edu.ph"
+                >
+                <div style="font-size:0.8125rem;color:var(--text-muted);margin-top:0.35rem;">
+                    Email is auto-generated as <strong>{student_number}@gordoncollege.edu.ph</strong>.
+                </div>
+                @error('email')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap;">
+                <button class="btn btn-primary" type="submit">
+                    <i data-lucide="save" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                    Add Student
+                </button>
+                <button type="button" class="btn btn-secondary" x-on:click="$dispatch('close')">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </x-modal>
+
+    <x-modal name="edit-student" :show="$errors->any() && old('student_form') === 'edit'" focusable maxWidth="2xl">
+        <form method="POST" :action="`{{ url('/students') }}/${editStudent.id}`" class="p-6">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="student_form" value="edit">
+            <input type="hidden" name="edit_student_id" :value="editStudent.id">
+
+            <div class="modern-card-header" style="margin-bottom:1rem;">
+                <h2 class="modern-card-title" style="font-size:1.05rem;">Edit student</h2>
+                <button type="button" class="btn btn-secondary btn-sm btn-icon" x-on:click="$dispatch('close')" aria-label="Close">
+                    <i data-lucide="x" data-size="18"></i>
+                </button>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit_student_id_number">Student ID Number *</label>
+                    <input
+                        class="form-control"
+                        id="edit_student_id_number"
+                        type="text"
+                        name="student_id_number"
+                        x-model="editStudent.student_id_number"
+                        placeholder="e.g. 2024-00123"
+                        required
+                    >
+                    @error('student_id_number')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="edit_section">Section *</label>
+                    <input
+                        class="form-control"
+                        id="edit_section"
+                        type="text"
+                        name="section"
+                        x-model="editStudent.section"
+                        placeholder="e.g. BSIT-3A"
+                        required
+                    >
+                    @error('section')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit_first_name">First Name *</label>
+                    <input
+                        class="form-control"
+                        id="edit_first_name"
+                        type="text"
+                        name="first_name"
+                        x-model="editStudent.first_name"
+                        placeholder="Juan"
+                        required
+                    >
+                    @error('first_name')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="edit_last_name">Last Name *</label>
+                    <input
+                        class="form-control"
+                        id="edit_last_name"
+                        type="text"
+                        name="last_name"
+                        x-model="editStudent.last_name"
+                        placeholder="Dela Cruz"
+                        required
+                    >
+                    @error('last_name')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="edit_email">Email Address (optional)</label>
+                <input
+                    class="form-control"
+                    id="edit_email"
+                    type="email"
+                    name="email"
+                    x-model="editStudent.email"
+                    placeholder="student@school.edu.ph"
+                >
+                @error('email')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap;">
+                <button class="btn btn-primary" type="submit">
+                    <i data-lucide="save" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                    Save changes
+                </button>
+                <button type="button" class="btn btn-secondary" x-on:click="$dispatch('close')">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </x-modal>
 </x-app-layout>

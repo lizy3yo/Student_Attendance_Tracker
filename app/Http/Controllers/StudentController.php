@@ -8,8 +8,17 @@ use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
+    private const STUDENT_EMAIL_DOMAIN = 'gordoncollege.edu.ph';
+
     public function index(Request $request)
     {
+        $editStudent = null;
+        if ($request->filled('edit')) {
+            $editStudent = Student::where('user_id', Auth::id())
+                ->where('id', $request->input('edit'))
+                ->first();
+        }
+
         $query = Student::where('user_id', Auth::id());
 
         if ($request->filled('search')) {
@@ -29,7 +38,7 @@ class StudentController extends Controller
         $students = $query->orderBy('last_name')->paginate(15)->withQueryString();
         $sections = Student::where('user_id', Auth::id())->distinct()->pluck('section')->sort()->values();
 
-        return view('students.index', compact('students', 'sections'));
+        return view('students.index', compact('students', 'sections', 'editStudent'));
     }
 
     public function create()
@@ -44,10 +53,13 @@ class StudentController extends Controller
             'first_name'        => ['required', 'string', 'max:100'],
             'last_name'         => ['required', 'string', 'max:100'],
             'section'           => ['required', 'string', 'max:50'],
-            'email'             => ['nullable', 'email', 'max:150'],
+            'email'             => ['nullable', 'email', 'max:150', 'ends_with:@' . self::STUDENT_EMAIL_DOMAIN],
         ]);
 
         $data['user_id'] = Auth::id();
+        if (empty($data['email'])) {
+            $data['email'] = $data['student_id_number'] . '@' . self::STUDENT_EMAIL_DOMAIN;
+        }
         Student::create($data);
 
         return redirect()->route('students.index')
@@ -57,7 +69,8 @@ class StudentController extends Controller
     public function edit(Student $student)
     {
         $this->authorize('update', $student);
-        return view('students.edit', compact('student'));
+        // Edit is handled as a modal on the index page
+        return redirect()->route('students.index', ['edit' => $student->id]);
     }
 
     public function update(Request $request, Student $student)
@@ -69,9 +82,12 @@ class StudentController extends Controller
             'first_name'        => ['required', 'string', 'max:100'],
             'last_name'         => ['required', 'string', 'max:100'],
             'section'           => ['required', 'string', 'max:50'],
-            'email'             => ['nullable', 'email', 'max:150'],
+            'email'             => ['nullable', 'email', 'max:150', 'ends_with:@' . self::STUDENT_EMAIL_DOMAIN],
         ]);
 
+        if (empty($data['email'])) {
+            $data['email'] = $data['student_id_number'] . '@' . self::STUDENT_EMAIL_DOMAIN;
+        }
         $student->update($data);
 
         return redirect()->route('students.index')
