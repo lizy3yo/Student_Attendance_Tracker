@@ -1,7 +1,10 @@
 <x-guest-layout>
     <x-slot name="title">Register</x-slot>
 
-    <div class="auth-title">Create an account 🎓</div>
+    <div class="auth-title">
+        Create an account
+        <i data-lucide="graduation-cap" data-size="18" style="margin-left:.35rem;vertical-align:middle;"></i>
+    </div>
     <div class="auth-sub">Register a new teacher account to get started</div>
 
     <form method="POST" action="{{ route('register') }}">
@@ -38,7 +41,10 @@
             @error('password_confirmation')<div class="form-error">{{ $message }}</div>@enderror
         </div>
 
-        <button class="btn-auth" type="submit">Create Account →</button>
+        <button class="btn-auth" type="submit">
+            Create Account
+            <i data-lucide="arrow-right" data-size="18" style="margin-left:.35rem;vertical-align:middle;"></i>
+        </button>
     </form>
 
     <div class="auth-footer">

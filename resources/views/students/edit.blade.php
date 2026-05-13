@@ -8,7 +8,10 @@
     <div class="app-page">
         <div style="max-width:640px;">
             <p style="margin-bottom:1rem;">
-                <a href="{{ route('students.index') }}" style="color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;">← Back to students</a>
+                <a href="{{ route('students.index') }}" style="color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;">
+                    <i data-lucide="arrow-left" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                    Back to students
+                </a>
             </p>
 
         <div class="card">
@@ -53,7 +56,10 @@
                         @error('email')<div class="form-error">{{ $message }}</div>@enderror
                     </div>
                     <div style="display:flex;gap:.75rem;margin-top:1rem;">
-                        <button class="btn btn-primary" type="submit">💾 Save Changes</button>
+                        <button class="btn btn-primary" type="submit">
+                            <i data-lucide="save" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                            Save Changes
+                        </button>
                         <a href="{{ route('students.index') }}" class="btn btn-secondary">Cancel</a>
                     </div>
                 </form>

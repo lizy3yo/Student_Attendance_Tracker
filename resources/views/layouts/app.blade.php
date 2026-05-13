@@ -439,15 +439,15 @@
         
         <div class="nav-right">
             <div class="search-container">
-                <span style="color: #9ca3af; font-size: 0.9rem;">🔍</span>
+                <i data-lucide="search" data-size="18" style="color:#9ca3af;"></i>
                 <input type="text" class="search-input" placeholder="Search...">
             </div>
             <button class="nav-icon-btn">
-                🔔
+                <i data-lucide="bell" data-size="18"></i>
                 <span class="nav-icon-badge"></span>
             </button>
             <button class="nav-icon-btn">
-                ⚙️
+                <i data-lucide="settings" data-size="18"></i>
             </button>
             <div style="position: relative; display: inline-block;">
                 <button class="user-profile-btn" onclick="document.getElementById('user-dropdown').classList.toggle('show')">
@@ -467,7 +467,9 @@
                     </form>
                 </div>
             </div>
-            <button class="mobile-menu-btn" onclick="openMobileMenu()">☰</button>
+            <button class="mobile-menu-btn" onclick="openMobileMenu()">
+                <i data-lucide="menu" data-size="22"></i>
+            </button>
         </div>
     </nav>
     <style>
@@ -477,10 +479,12 @@
     {{-- Mobile Sidebar --}}
     <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
     <div class="mobile-sidebar" id="mobileSidebar">
-        <button class="mobile-close-btn" onclick="closeMobileMenu()">✕</button>
+        <button class="mobile-close-btn" onclick="closeMobileMenu()">
+            <i data-lucide="x" data-size="20"></i>
+        </button>
         <div style="margin-bottom: 2rem;">
             <div class="search-container" style="display: flex; width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
-                <span style="color: #9ca3af; font-size: 0.9rem;">🔍</span>
+                <i data-lucide="search" data-size="18" style="color:#9ca3af;"></i>
                 <input type="text" class="search-input" placeholder="Search..." style="color: white;">
             </div>
         </div>
@@ -496,12 +500,12 @@
         <div style="padding: 0 5%; position: absolute; top: 80px; left: 0; right: 0; z-index: 100; pointer-events: none;">
             @if(session('success'))
                 <div class="alert alert-success" style="pointer-events: auto; max-width: 600px; margin: 0 auto 1rem;">
-                    <span>✅</span> {{ session('success') }}
+                    <i data-lucide="check-circle-2" data-size="18" style="color:#166534;"></i> {{ session('success') }}
                 </div>
             @endif
             @if(session('error'))
                 <div class="alert alert-error" style="pointer-events: auto; max-width: 600px; margin: 0 auto 1rem;">
-                    <span>❌</span> {{ session('error') }}
+                    <i data-lucide="x-circle" data-size="18" style="color:#991b1b;"></i> {{ session('error') }}
                 </div>
             @endif
         </div>
@@ -543,6 +547,19 @@
                 el.style.width = `${pct}%`;
             });
         });
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        const hydrateLucide = () => {
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+        };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', hydrateLucide);
+        } else {
+            hydrateLucide();
+        }
     </script>
 </body>
 </html>

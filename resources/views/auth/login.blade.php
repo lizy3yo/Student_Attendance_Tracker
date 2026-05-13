@@ -32,7 +32,10 @@
             <label for="remember_me">Remember me for 30 days</label>
         </div>
 
-        <button class="btn-auth" type="submit">Sign In →</button>
+        <button class="btn-auth" type="submit">
+            Sign In
+            <i data-lucide="arrow-right" data-size="18" style="margin-left:.35rem;vertical-align:middle;"></i>
+        </button>
     </form>
 
     <div class="auth-footer">

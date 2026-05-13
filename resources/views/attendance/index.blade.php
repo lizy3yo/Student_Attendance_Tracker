@@ -15,7 +15,10 @@
                     <input class="form-control" id="att-date" type="date" name="date"
                            value="{{ $date }}" max="{{ today()->toDateString() }}">
                 </div>
-                <button class="btn btn-primary" type="submit">📅 Load</button>
+                <button class="btn btn-primary" type="submit">
+                    <i data-lucide="calendar" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                    Load
+                </button>
             </form>
         </div>
     </div>
@@ -23,7 +26,9 @@
     @if($students->isEmpty())
         <div class="card">
             <div class="empty-state">
-                <div class="icon">🎓</div>
+                <div class="icon" aria-hidden="true">
+                    <i data-lucide="graduation-cap" data-size="34"></i>
+                </div>
                 <h3>No students enrolled</h3>
                 <p>Add students before marking attendance.</p>
                 <a href="{{ route('students.create') }}" class="btn btn-primary" style="margin-top:1rem;">Add Student</a>
@@ -33,9 +38,18 @@
         {{-- Bulk select toolbar --}}
         <div style="display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">
             <span style="font-size:.8rem;color:var(--text-muted);">Mark all as:</span>
-            <button class="btn btn-secondary btn-sm" onclick="markAll('present')">✅ All Present</button>
-            <button class="btn btn-secondary btn-sm" onclick="markAll('absent')">❌ All Absent</button>
-            <button class="btn btn-secondary btn-sm" onclick="markAll('late')">⏱ All Late</button>
+            <button class="btn btn-secondary btn-sm" onclick="markAll('present')">
+                <i data-lucide="check-circle-2" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
+                All Present
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="markAll('absent')">
+                <i data-lucide="x-circle" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
+                All Absent
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="markAll('late')">
+                <i data-lucide="clock" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
+                All Late
+            </button>
         </div>
 
         <form method="POST" action="{{ route('attendance.store') }}">
@@ -45,7 +59,8 @@
             <div class="card" style="margin-bottom:1.25rem;">
                 <div class="card-header">
                     <span class="card-title">
-                        📋 {{ \Carbon\Carbon::parse($date)->format('l, F j, Y') }}
+                        <i data-lucide="clipboard" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                        {{ \Carbon\Carbon::parse($date)->format('l, F j, Y') }}
                     </span>
                     <span style="font-size:.8rem;color:var(--text-muted);">{{ $students->count() }} students</span>
                 </div>
@@ -80,21 +95,30 @@
                                                    id="p{{ $student->id }}" value="present"
                                                    {{ $current === 'present' ? 'checked' : '' }}
                                                    data-student-id="{{ $student->id }}">
-                                            <label class="att-label att-present" for="p{{ $student->id }}">✅ Present</label>
+                                            <label class="att-label att-present" for="p{{ $student->id }}">
+                                                <i data-lucide="check" data-size="14" style="vertical-align:middle;margin-right:.25rem;"></i>
+                                                Present
+                                            </label>
 
                                             <input class="att-radio" type="radio"
                                                    name="attendance[{{ $student->id }}][status]"
                                                    id="a{{ $student->id }}" value="absent"
                                                    {{ $current === 'absent' ? 'checked' : '' }}
                                                    data-student-id="{{ $student->id }}">
-                                            <label class="att-label att-absent" for="a{{ $student->id }}">❌ Absent</label>
+                                            <label class="att-label att-absent" for="a{{ $student->id }}">
+                                                <i data-lucide="x" data-size="14" style="vertical-align:middle;margin-right:.25rem;"></i>
+                                                Absent
+                                            </label>
 
                                             <input class="att-radio" type="radio"
                                                    name="attendance[{{ $student->id }}][status]"
                                                    id="l{{ $student->id }}" value="late"
                                                    {{ $current === 'late' ? 'checked' : '' }}
                                                    data-student-id="{{ $student->id }}">
-                                            <label class="att-label att-late" for="l{{ $student->id }}">⏱ Late</label>
+                                            <label class="att-label att-late" for="l{{ $student->id }}">
+                                                <i data-lucide="clock" data-size="14" style="vertical-align:middle;margin-right:.25rem;"></i>
+                                                Late
+                                            </label>
                                         </div>
                                     </td>
                                     <td>
@@ -112,7 +136,10 @@
             </div>
 
             <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-                <button class="btn btn-primary" type="submit">💾 Save Attendance</button>
+                <button class="btn btn-primary" type="submit">
+                    <i data-lucide="save" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                    Save Attendance
+                </button>
                 <span style="font-size:.8rem;color:var(--text-muted);">All changes will be saved for {{ \Carbon\Carbon::parse($date)->format('F j, Y') }}.</span>
             </div>
         </form>
@@ -123,7 +150,10 @@
                   onsubmit="return confirm('Clear ALL attendance records for this date?')">
                 @csrf @method('DELETE')
                 <input type="hidden" name="date" value="{{ $date }}">
-                <button class="btn btn-danger btn-sm" type="submit">🗑 Clear Records for This Date</button>
+                <button class="btn btn-danger btn-sm" type="submit">
+                    <i data-lucide="trash-2" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
+                    Clear Records for This Date
+                </button>
             </form>
         </div>
     @endif

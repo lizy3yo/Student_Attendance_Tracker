@@ -10,6 +10,10 @@
                 <div class="hero-greeting">
                     <h1 class="hero-title">Hello {{ explode(' ', Auth::user()->name)[0] }}! 👋</h1>
                     <p class="hero-subtitle">We hope you're having a great day.</p>
+                    <p class="hero-subtitle" style="margin-top:0.25rem;">
+                        Attendance rate: <strong style="color:#fff;">{{ $attendanceRate }}%</strong>
+                        <span style="color:#9ca3af;">· Marked today {{ $markedToday }}/{{ $totalStudents }}</span>
+                    </p>
                 </div>
             </div>
             <div class="hero-actions">
@@ -20,7 +24,9 @@
                     <select class="hero-select hero-select--calendar" aria-label="Date range">
                         <option value="30">Last 30 days</option>
                     </select>
-                    <span class="hero-select-icon" aria-hidden="true">📅</span>
+                    <span class="hero-select-icon" aria-hidden="true">
+                        <i data-lucide="calendar" data-size="16" style="display:inline-block;vertical-align:middle;"></i>
+                    </span>
                 </div>
                 <button type="button" class="btn btn-primary hero-filter-btn">
                     Filter
@@ -499,7 +505,7 @@
             <div class="dots">...</div>
             <div class="stat-card-main">
                 <div class="stat-icon-circle white-border" style="color: #22c55e;">
-                    👨‍🎓
+                    <i data-lucide="graduation-cap" data-size="24"></i>
                 </div>
                 <div class="stat-content">
                     <div class="stat-number">{{ sprintf('%02d', $totalStudents) }}</div>
@@ -512,7 +518,7 @@
             <div class="dots">...</div>
             <div class="stat-card-main">
                 <div class="stat-icon-circle accent-bg">
-                    ➜
+                    <i data-lucide="arrow-right" data-size="22"></i>
                 </div>
                 <div class="stat-content">
                     <div class="stat-number">{{ sprintf('%02d', $presentToday) }}</div>
@@ -525,7 +531,7 @@
             <div class="dots">...</div>
             <div class="stat-card-main">
                 <div class="stat-icon-circle white-border" style="color: #ef4444;">
-                    ☹️
+                    <i data-lucide="frown" data-size="22"></i>
                 </div>
                 <div class="stat-content">
                     <div class="stat-number">{{ sprintf('%02d', $absentToday) }}</div>
@@ -541,7 +547,7 @@
             <div class="dots">...</div>
             <div class="stat-card-main">
                 <div class="stat-icon-circle white-border" style="color: #22c55e;">
-                    ⏱
+                    <i data-lucide="clock" data-size="22"></i>
                 </div>
                 <div class="stat-content">
                     <div class="stat-number">{{ sprintf('%02d', $lateToday) }}</div>
@@ -557,7 +563,7 @@
                 <h2 class="modern-card-title">Total Attendance Report</h2>
                 <div class="card-menu" role="button" tabindex="0" aria-label="Chart options">…</div>
             </div>
-            <!-- Mock Line Chart -->
+            <!-- Attendance trend (last {{ $rangeDays ?? 30 }} days) -->
             <div class="chart-placeholder-svg chart-line-wrap">
                 <div class="chart-h-scroll-slab">
                 <div class="chart-line-inner">
@@ -570,7 +576,7 @@
                         <div style="border-top: 1px dashed #e2e8f0;"></div>
                         <div style="border-top: 1px dashed #e2e8f0;"></div>
                     </div>
-                    <!-- Line -->
+                    <!-- Line (static SVG frame; labels below use real data) -->
                     <svg width="100%" height="100%" viewBox="0 0 1000 250" preserveAspectRatio="none" style="position: absolute; top:0; left:0; z-index: 1; overflow: visible;">
                         <defs>
                             <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
@@ -603,9 +609,13 @@
                     <div style="position: absolute; left: 60%; top: 35%; bottom: 0; width: 30px; transform: translateX(-50%); background: linear-gradient(to bottom, rgba(34,197,94,0.3), rgba(34,197,94,0.05)); z-index: 0; border-radius: 4px 4px 0 0;"></div>
                 </div>
                 <div class="chart-x-labels chart-x-labels--below">
-                    <span>Jan 1</span><span>Jan 4</span><span>Jan 7</span><span>Jan 10</span>
-                    <span>Jan 13</span><span>Jan 16</span><span>Jan 19</span><span>Jan 22</span>
-                    <span>Jan 25</span><span>Jan 28</span>
+                    @php
+                        $trendLabels = collect($trend ?? [])->pluck('label')->values();
+                        $labelIdx = $trendLabels->count() > 0 ? [0, 3, 6, 9, 12, 15, 18, 21, 24, 27] : [];
+                    @endphp
+                    @foreach($labelIdx as $i)
+                        <span>{{ $trendLabels[$i] ?? '' }}</span>
+                    @endforeach
                 </div>
                 </div>
             </div>
@@ -613,76 +623,114 @@
 
         <div class="modern-card">
             <div class="modern-card-header">
-                <h2 class="modern-card-title">Students by Class</h2>
-                <div class="card-menu" role="button" tabindex="0" aria-label="Chart options">…</div>
+                <h2 class="modern-card-title">Recent activity</h2>
+                <div class="card-menu" role="button" tabindex="0" aria-label="List options">…</div>
             </div>
 
-            <div class="chart-placeholder">
-                <div class="chart-bar" style="height: 60%;"><span class="chart-label">I</span></div>
-                <div class="chart-bar" style="height: 70%;"><span class="chart-label">II</span></div>
-                <div class="chart-bar" style="height: 55%;"><span class="chart-label">III</span></div>
-                <div class="chart-bar" style="height: 65%;"><span class="chart-label">IV</span></div>
-                <div class="chart-bar" style="height: 75%;"><span class="chart-label">V</span></div>
-                
-                <div class="chart-bar active" style="height: 85%;">
-                    <div style="position: absolute; top: -38px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 0.375rem 0.625rem; border-radius: 8px; font-size: 0.8125rem; font-weight: 600;">
-                        17
-                        <div style="position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 8px; height: 8px; background: #1e293b;"></div>
+            @if(($recentLogs ?? collect())->isEmpty())
+                <div class="empty-state" style="padding:2rem 1.25rem;">
+                    <div class="icon" aria-hidden="true">
+                        <i data-lucide="file-text" data-size="34"></i>
                     </div>
-                    <span class="chart-label">VI</span>
+                    <h3>No recent attendance yet</h3>
+                    <p>Once you start marking attendance, activity will show up here.</p>
                 </div>
-                
-                <div class="chart-bar" style="height: 60%;"><span class="chart-label">VII</span></div>
-                <div class="chart-bar" style="height: 80%;"><span class="chart-label">VIII</span></div>
-                <div class="chart-bar" style="height: 50%;"><span class="chart-label">IX</span></div>
-            </div>
+            @else
+                <ul class="attendant-list">
+                    @foreach($recentLogs as $log)
+                        @php
+                            $badge = $log->statusBadge();
+                        @endphp
+                        <li class="attendant-item" style="padding:0.75rem 0;">
+                            <div class="attendant-info">
+                                <div class="attendant-avatar" style="display:flex;align-items:center;justify-content:center;background:#e2e8f0;color:#0f172a;font-weight:700;">
+                                    {{ strtoupper(substr($log->student?->first_name ?? 'S', 0, 1)) }}
+                                </div>
+                                <div class="attendant-meta">
+                                    <span class="attendant-name">{{ $log->student?->full_name ?? 'Student' }}</span>
+                                    <span style="font-size:0.8125rem;color:var(--text-muted);">
+                                        {{ $log->date->format('M j, Y') }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="attendant-right" style="display:flex;align-items:center;gap:0.5rem;">
+                                <span class="badge badge-{{ $badge['color'] }}">{{ $badge['label'] }}</span>
+                                <span style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap;">
+                                    {{ $log->created_at->diffForHumans() }}
+                                </span>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
         </div>
     </div>
     
     <div class="dashboard-grid-bottom">
         <div class="modern-card">
             <div class="modern-card-header">
-                <h2 class="modern-card-title">Students by Gender</h2>
+                <h2 class="modern-card-title">Students by section</h2>
                 <div class="card-menu" role="button" tabindex="0" aria-label="Chart options">…</div>
             </div>
-            <div class="gender-chart">
-                <div class="gender-donut" role="img" aria-label="Student gender split: 55 percent male, 45 percent female"></div>
-                <ul class="gender-legend">
-                    <li><span class="gender-swatch gender-swatch--m" aria-hidden="true"></span> Male <strong>55%</strong></li>
-                    <li><span class="gender-swatch gender-swatch--f" aria-hidden="true"></span> Female <strong>45%</strong></li>
+            @if(($sectionCounts ?? collect())->isEmpty())
+                <div class="empty-state" style="padding:2rem 1.25rem;">
+                    <div class="icon" aria-hidden="true">
+                        <i data-lucide="tag" data-size="34"></i>
+                    </div>
+                    <h3>No students yet</h3>
+                    <p>Add students to see section breakdown.</p>
+                </div>
+            @else
+                <ul class="attendant-list">
+                    @foreach($sectionCounts as $row)
+                        <li class="attendant-item" style="padding:0.65rem 0;">
+                            <div class="attendant-info">
+                                <div class="attendant-avatar" style="display:flex;align-items:center;justify-content:center;background:#f1f5f9;color:#0f172a;font-weight:700;">
+                                    {{ strtoupper(substr($row->section ?? 'S', 0, 1)) }}
+                                </div>
+                                <div class="attendant-meta">
+                                    <span class="attendant-name">{{ $row->section ?? '—' }}</span>
+                                    <span style="font-size:0.8125rem;color:var(--text-muted);">Section</span>
+                                </div>
+                            </div>
+                            <div class="attendant-right attendant-days">{{ $row->total }} <span>students</span></div>
+                        </li>
+                    @endforeach
                 </ul>
-            </div>
+            @endif
         </div>
         
         <div class="modern-card">
             <div class="modern-card-header">
-                <h2 class="modern-card-title">Top 6 Attendant</h2>
+                <h2 class="modern-card-title">Top attendants</h2>
                 <div class="card-menu" role="button" tabindex="0" aria-label="List options">…</div>
             </div>
-            <ul class="attendant-list">
-                @php
-                    $mockUsers = [
-                        ['name' => 'Brooklyn Simmons', 'pct' => '100%', 'days' => '30'],
-                        ['name' => 'Cody Fisher', 'pct' => '100%', 'days' => '30'],
-                        ['name' => 'Marvin McKinney', 'pct' => '98.7%', 'days' => '29'],
-                        ['name' => 'Esther Howard', 'pct' => '97.2%', 'days' => '28'],
-                        ['name' => 'Jenny Wilson', 'pct' => '96.5%', 'days' => '28'],
-                        ['name' => 'Robert Fox', 'pct' => '95.8%', 'days' => '27'],
-                    ];
-                @endphp
-                @foreach($mockUsers as $idx => $user)
-                    <li class="attendant-item">
-                        <div class="attendant-info">
-                            <img class="attendant-avatar" alt="" src="https://ui-avatars.com/api/?name={{ urlencode($user['name']) }}&background=random" />
-                            <div class="attendant-meta">
-                                <span class="attendant-name">{{ $user['name'] }}</span>
-                                <span class="attendant-percent">{{ $user['pct'] }}</span>
+            @if(($topAttendants ?? collect())->isEmpty())
+                <div class="empty-state" style="padding:2rem 1.25rem;">
+                    <div class="icon" aria-hidden="true">
+                        <i data-lucide="award" data-size="34"></i>
+                    </div>
+                    <h3>No attendance records yet</h3>
+                    <p>Mark attendance to calculate top attendants.</p>
+                </div>
+            @else
+                <ul class="attendant-list">
+                    @foreach($topAttendants as $student)
+                        <li class="attendant-item">
+                            <div class="attendant-info">
+                                <div class="attendant-avatar" style="display:flex;align-items:center;justify-content:center;background:#e2e8f0;color:#0f172a;font-weight:700;">
+                                    {{ strtoupper(substr($student->first_name ?? 'S', 0, 1)) }}
+                                </div>
+                                <div class="attendant-meta">
+                                    <span class="attendant-name">{{ $student->full_name }}</span>
+                                    <span class="attendant-percent">{{ number_format($student->period_pct ?? 0, 1) }}%</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="attendant-right attendant-days">{{ $user['days'] }} <span>days</span></div>
-                    </li>
-                @endforeach
-            </ul>
+                            <div class="attendant-right attendant-days">{{ (int) ($student->period_present ?? 0) }} <span>/ {{ (int) ($student->period_total ?? 0) }}</span></div>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
         </div>
         
         <div class="modern-card">
@@ -690,26 +738,32 @@
                 <h2 class="modern-card-title">Weekly Absent</h2>
                 <div class="card-menu" role="button" tabindex="0" aria-label="Chart options">…</div>
             </div>
-            <div class="radar-wrap">
-                <svg class="radar-svg" viewBox="0 0 120 120" aria-hidden="true">
-                    <g transform="translate(60,60)">
-                        <polygon points="0,-48 45.6,-14.1 28.2,38.7 -28.2,38.7 -45.6,-14.1" fill="none" stroke="#e2e8f0" stroke-width="1" />
-                        <polygon points="0,-36 34.2,-10.6 21.2,29 -21.2,29 -34.2,-10.6" fill="none" stroke="#e2e8f0" stroke-width="1" />
-                        <polygon points="0,-24 22.8,-7.1 14.1,19.3 -14.1,19.3 -22.8,-7.1" fill="none" stroke="#e2e8f0" stroke-width="1" />
-                        <line x1="0" y1="0" x2="0" y2="-48" stroke="#e2e8f0" stroke-width="1" />
-                        <line x1="0" y1="0" x2="45.6" y2="-14.1" stroke="#e2e8f0" stroke-width="1" />
-                        <line x1="0" y1="0" x2="28.2" y2="38.7" stroke="#e2e8f0" stroke-width="1" />
-                        <line x1="0" y1="0" x2="-28.2" y2="38.7" stroke="#e2e8f0" stroke-width="1" />
-                        <line x1="0" y1="0" x2="-45.6" y2="-14.1" stroke="#e2e8f0" stroke-width="1" />
-                        <polygon points="0,-28 38,-12 22,36 -26,34 -34,-8" fill="rgba(34,197,94,0.28)" stroke="#22c55e" stroke-width="1.5" />
-                    </g>
-                </svg>
-                <div class="radar-label" style="position: absolute; top: 4%; left: 50%; transform: translateX(-50%); text-align: center;">Mon<br><span style="font-weight:500;color:#64748b;">08</span></div>
-                <div class="radar-label" style="position: absolute; top: 32%; right: 4%;">Tue</div>
-                <div class="radar-label" style="position: absolute; bottom: 6%; right: 18%;">Wed</div>
-                <div class="radar-label" style="position: absolute; bottom: 6%; left: 18%;">Thu</div>
-                <div class="radar-label" style="position: absolute; top: 32%; left: 4%;">Fri</div>
-            </div>
+            @if(empty($weeklyData))
+                <div class="empty-state" style="padding:2rem 1.25rem;">
+                    <div class="icon" aria-hidden="true">
+                        <i data-lucide="calendar" data-size="34"></i>
+                    </div>
+                    <h3>No weekly data</h3>
+                    <p>Mark attendance to populate the weekly summary.</p>
+                </div>
+            @else
+                <ul class="attendant-list">
+                    @foreach($weeklyData as $day)
+                        <li class="attendant-item" style="padding:0.65rem 0;">
+                            <div class="attendant-info">
+                                <div class="attendant-avatar" style="display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#991b1b;font-weight:800;">
+                                    {{ $day['day'] }}
+                                </div>
+                                <div class="attendant-meta">
+                                    <span class="attendant-name">{{ \Carbon\Carbon::parse($day['date'])->format('M j') }}</span>
+                                    <span style="font-size:0.8125rem;color:var(--text-muted);">Absent</span>
+                                </div>
+                            </div>
+                            <div class="attendant-right attendant-days">{{ (int) $day['absent'] }} <span>students</span></div>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
         </div>
     </div>
     </div>

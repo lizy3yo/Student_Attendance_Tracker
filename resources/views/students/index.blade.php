@@ -4,7 +4,10 @@
     <x-app-banner title="Student records">
         <x-slot name="subtitle">Manage all enrolled students in your class.</x-slot>
         <x-slot name="actions">
-            <a href="{{ route('students.create') }}" class="btn btn-primary">➕ Add student</a>
+            <a href="{{ route('students.create') }}" class="btn btn-primary">
+                <i data-lucide="plus" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                Add student
+            </a>
         </x-slot>
     </x-app-banner>
 
@@ -27,9 +30,15 @@
                     </select>
                 </div>
                 <div style="display:flex;gap:.5rem;">
-                    <button class="btn btn-primary" type="submit">🔍 Search</button>
+                    <button class="btn btn-primary" type="submit">
+                        <i data-lucide="search" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                        Search
+                    </button>
                     @if(request()->hasAny(['search','section']))
-                        <a href="{{ route('students.index') }}" class="btn btn-secondary">✕ Clear</a>
+                        <a href="{{ route('students.index') }}" class="btn btn-secondary">
+                            <i data-lucide="x" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                            Clear
+                        </a>
                     @endif
                 </div>
             </form>
@@ -39,13 +48,18 @@
     {{-- Table --}}
     <div class="card">
         <div class="card-header">
-            <span class="card-title">👥 All Students</span>
+            <span class="card-title">
+                <i data-lucide="users" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                All Students
+            </span>
             <span style="font-size:.8rem;color:var(--text-muted);">{{ $students->total() }} record(s)</span>
         </div>
 
         @if($students->isEmpty())
             <div class="empty-state">
-                <div class="icon">🎓</div>
+                <div class="icon" aria-hidden="true">
+                    <i data-lucide="graduation-cap" data-size="34"></i>
+                </div>
                 <h3>No students found</h3>
                 <p>Add your first student to get started.</p>
                 <a href="{{ route('students.create') }}" class="btn btn-primary" style="margin-top:1rem;">Add Student</a>
@@ -103,11 +117,15 @@
                                     <div style="display:flex;gap:.4rem;justify-content:center;">
                                         <a href="{{ route('students.edit', $student) }}"
                                            class="btn btn-secondary btn-sm btn-icon"
-                                           data-tooltip="Edit">✏️</a>
+                                           data-tooltip="Edit">
+                                            <i data-lucide="edit-3" data-size="18"></i>
+                                        </a>
                                         <form method="POST" action="{{ route('students.destroy', $student) }}"
                                               onsubmit="return confirm('Remove {{ addslashes($student->full_name) }}? This will also delete their attendance records.')">
                                             @csrf @method('DELETE')
-                                            <button class="btn btn-danger btn-sm btn-icon" data-tooltip="Delete">🗑</button>
+                                            <button class="btn btn-danger btn-sm btn-icon" data-tooltip="Delete">
+                                                <i data-lucide="trash-2" data-size="18"></i>
+                                            </button>
                                         </form>
                                     </div>
                                 </td>

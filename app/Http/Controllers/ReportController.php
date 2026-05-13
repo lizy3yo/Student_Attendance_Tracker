@@ -11,6 +11,12 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        $request->validate([
+            'date_from' => ['nullable', 'date'],
+            'date_to'   => ['nullable', 'date', 'after_or_equal:date_from'],
+            'section'   => ['nullable', 'string', 'max:50'],
+        ]);
+
         $teacher    = Auth::user();
         $dateFrom   = $request->input('date_from', now()->startOfMonth()->toDateString());
         $dateTo     = $request->input('date_to',   now()->toDateString());
@@ -21,7 +27,7 @@ class ReportController extends Controller
             $query->where('section', $section);
         }
 
-        $students = $query->orderBy('last_name')->get()->map(function ($student) use ($dateFrom, $dateTo) {
+        $students = $query->orderBy('last_name')->get()->map(function (Student $student) use ($dateFrom, $dateTo) {
             $records = $student->attendances()
                 ->whereBetween('date', [$dateFrom, $dateTo])
                 ->get();

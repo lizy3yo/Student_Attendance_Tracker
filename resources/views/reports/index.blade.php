@@ -28,8 +28,14 @@
                         @endforeach
                     </select>
                 </div>
-                <button class="btn btn-primary" type="submit">📊 Generate</button>
-                <a href="{{ route('reports.index') }}" class="btn btn-secondary">↺ Reset</a>
+                <button class="btn btn-primary" type="submit">
+                    <i data-lucide="bar-chart-3" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                    Generate
+                </button>
+                <a href="{{ route('reports.index') }}" class="btn btn-secondary">
+                    <i data-lucide="rotate-ccw" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                    Reset
+                </a>
             </form>
         </div>
     </div>
@@ -37,21 +43,27 @@
     {{-- Class Summary --}}
     <div class="app-kpi-grid">
         <div class="app-kpi-card">
-            <div class="app-kpi-icon" style="background:rgba(99,102,241,.12);">👥</div>
+            <div class="app-kpi-icon" style="background:rgba(99,102,241,.12);">
+                <i data-lucide="users" data-size="22" style="color:#6366f1;"></i>
+            </div>
             <div>
                 <div class="app-kpi-value">{{ $students->count() }}</div>
                 <div class="app-kpi-label">Students in report</div>
             </div>
         </div>
         <div class="app-kpi-card">
-            <div class="app-kpi-icon" style="background:rgba(34,197,94,.15);">📅</div>
+            <div class="app-kpi-icon" style="background:rgba(34,197,94,.15);">
+                <i data-lucide="calendar" data-size="22" style="color:#16a34a;"></i>
+            </div>
             <div>
                 <div class="app-kpi-value">{{ $classTotal }}</div>
                 <div class="app-kpi-label">Total sessions recorded</div>
             </div>
         </div>
         <div class="app-kpi-card">
-            <div class="app-kpi-icon" style="background:rgba(99,102,241,.12);">📊</div>
+            <div class="app-kpi-icon" style="background:rgba(99,102,241,.12);">
+                <i data-lucide="chart-line" data-size="22" style="color:#6366f1;"></i>
+            </div>
             <div>
                 <div class="app-kpi-value">{{ $classRate }}<span style="font-size:1rem;">%</span></div>
                 <div class="app-kpi-label">Class attendance rate</div>
@@ -68,14 +80,19 @@
     {{-- Report Table --}}
     <div class="card">
         <div class="card-header">
-            <span class="card-title">📋 Student Breakdown</span>
+            <span class="card-title">
+                <i data-lucide="clipboard-list" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
+                Student Breakdown
+            </span>
             <span style="font-size:.75rem;color:var(--text-muted);">
                 {{ \Carbon\Carbon::parse($dateFrom)->format('M j') }} – {{ \Carbon\Carbon::parse($dateTo)->format('M j, Y') }}
             </span>
         </div>
         @if($students->isEmpty())
             <div class="empty-state">
-                <div class="icon">📭</div>
+                <div class="icon" aria-hidden="true">
+                    <i data-lucide="inbox" data-size="34"></i>
+                </div>
                 <h3>No data for this period</h3>
                 <p>Adjust the date range or add students and mark attendance first.</p>
             </div>
@@ -133,11 +150,20 @@
                                     @if($student->reportTotal === 0)
                                         <span class="badge badge-muted">No Data</span>
                                     @elseif($pct >= 75)
-                                        <span class="badge badge-success">✅ Good</span>
+                                        <span class="badge badge-success">
+                                            <i data-lucide="check-circle-2" data-size="16" style="margin-right:.35rem;vertical-align:middle; color:#166534;"></i>
+                                            Good
+                                        </span>
                                     @elseif($pct >= 50)
-                                        <span class="badge badge-warning">⚠️ At Risk</span>
+                                        <span class="badge badge-warning">
+                                            <i data-lucide="alert-triangle" data-size="16" style="margin-right:.35rem;vertical-align:middle; color:#92400e;"></i>
+                                            At Risk
+                                        </span>
                                     @else
-                                        <span class="badge badge-danger">🚨 Critical</span>
+                                        <span class="badge badge-danger">
+                                            <i data-lucide="sirens" data-size="16" style="margin-right:.35rem;vertical-align:middle; color:#991b1b;"></i>
+                                            Critical
+                                        </span>
                                     @endif
                                 </td>
                             </tr>
@@ -150,8 +176,14 @@
 
     {{-- Legend --}}
     <div style="margin-top:1rem;padding:1rem 1.25rem;background:var(--surface);border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-card);display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted);">
-        <span>📌 <strong style="color:var(--text);">Threshold:</strong> ≥75% = Good &nbsp;|&nbsp; 50–74% = At Risk &nbsp;|&nbsp; &lt;50% = Critical</span>
-        <span>📅 <strong style="color:var(--text);">Period:</strong> {{ \Carbon\Carbon::parse($dateFrom)->format('F j') }} – {{ \Carbon\Carbon::parse($dateTo)->format('F j, Y') }}</span>
+        <span>
+            <i data-lucide="pin" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
+            <strong style="color:var(--text);">Threshold:</strong> ≥75% = Good &nbsp;|&nbsp; 50–74% = At Risk &nbsp;|&nbsp; &lt;50% = Critical
+        </span>
+        <span>
+            <i data-lucide="calendar" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
+            <strong style="color:var(--text);">Period:</strong> {{ \Carbon\Carbon::parse($dateFrom)->format('F j') }} – {{ \Carbon\Carbon::parse($dateTo)->format('F j, Y') }}
+        </span>
     </div>
     </div>
 </x-app-layout>
