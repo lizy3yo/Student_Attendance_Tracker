@@ -1,13 +1,11 @@
 <x-app-layout>
     <x-slot name="title">Take Attendance</x-slot>
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;">
-        <div>
-            <h2 style="font-size:1.4rem;font-weight:800;">Attendance Sheet</h2>
-            <p style="color:var(--text-muted);font-size:.85rem;">Mark each student's status for the selected date.</p>
-        </div>
-    </div>
+    <x-app-banner title="Attendance Sheet">
+        <x-slot name="subtitle">Mark each student's status for the selected date.</x-slot>
+    </x-app-banner>
 
+    <div class="app-page">
     {{-- Date Picker --}}
     <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-body" style="padding:1rem 1.5rem;">
@@ -81,21 +79,21 @@
                                                    name="attendance[{{ $student->id }}][status]"
                                                    id="p{{ $student->id }}" value="present"
                                                    {{ $current === 'present' ? 'checked' : '' }}
-                                                   onchange="highlightRow({{ $student->id }}, 'present')">
+                                                   data-student-id="{{ $student->id }}">
                                             <label class="att-label att-present" for="p{{ $student->id }}">✅ Present</label>
 
                                             <input class="att-radio" type="radio"
                                                    name="attendance[{{ $student->id }}][status]"
                                                    id="a{{ $student->id }}" value="absent"
                                                    {{ $current === 'absent' ? 'checked' : '' }}
-                                                   onchange="highlightRow({{ $student->id }}, 'absent')">
+                                                   data-student-id="{{ $student->id }}">
                                             <label class="att-label att-absent" for="a{{ $student->id }}">❌ Absent</label>
 
                                             <input class="att-radio" type="radio"
                                                    name="attendance[{{ $student->id }}][status]"
                                                    id="l{{ $student->id }}" value="late"
                                                    {{ $current === 'late' ? 'checked' : '' }}
-                                                   onchange="highlightRow({{ $student->id }}, 'late')">
+                                                   data-student-id="{{ $student->id }}">
                                             <label class="att-label att-late" for="l{{ $student->id }}">⏱ Late</label>
                                         </div>
                                     </td>
@@ -120,7 +118,7 @@
         </form>
 
         {{-- Clear date records --}}
-        <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--sidebar-border);">
+        <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border-color);">
             <form method="POST" action="{{ route('attendance.destroy') }}"
                   onsubmit="return confirm('Clear ALL attendance records for this date?')">
                 @csrf @method('DELETE')
@@ -130,7 +128,18 @@
         </div>
     @endif
 
+    </div>
+
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input.att-radio').forEach((r) => {
+                r.addEventListener('change', () => {
+                    const id = r.getAttribute('data-student-id');
+                    if (id) highlightRow(id, r.value);
+                });
+            });
+        });
+
         function markAll(status) {
             document.querySelectorAll(`input[type=radio][value="${status}"]`).forEach(r => {
                 r.checked = true;

@@ -1,14 +1,11 @@
 <x-app-layout>
     <x-slot name="title">Reports</x-slot>
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;">
-        <div>
-            <h2 style="font-size:1.4rem;font-weight:800;">Attendance Reports</h2>
-            <p style="color:var(--text-muted);font-size:.85rem;">Per-student attendance summary for a selected date range.</p>
-        </div>
-    </div>
+    <x-app-banner title="Attendance reports">
+        <x-slot name="subtitle">Per-student attendance summary for a selected date range.</x-slot>
+    </x-app-banner>
 
-    {{-- Filters --}}
+    <div class="app-page">
     <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-body" style="padding:1rem 1.5rem;">
             <form method="GET" action="{{ route('reports.index') }}" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
@@ -38,30 +35,30 @@
     </div>
 
     {{-- Class Summary --}}
-    <div class="stat-grid" style="margin-bottom:1.5rem;">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(99,102,241,.15);">👥</div>
+    <div class="app-kpi-grid">
+        <div class="app-kpi-card">
+            <div class="app-kpi-icon" style="background:rgba(99,102,241,.12);">👥</div>
             <div>
-                <div class="stat-value">{{ $students->count() }}</div>
-                <div class="stat-label">Students in Report</div>
+                <div class="app-kpi-value">{{ $students->count() }}</div>
+                <div class="app-kpi-label">Students in report</div>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(16,185,129,.15);">📅</div>
+        <div class="app-kpi-card">
+            <div class="app-kpi-icon" style="background:rgba(34,197,94,.15);">📅</div>
             <div>
-                <div class="stat-value">{{ $classTotal }}</div>
-                <div class="stat-label">Total Sessions Recorded</div>
+                <div class="app-kpi-value">{{ $classTotal }}</div>
+                <div class="app-kpi-label">Total sessions recorded</div>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(99,102,241,.15);">📊</div>
+        <div class="app-kpi-card">
+            <div class="app-kpi-icon" style="background:rgba(99,102,241,.12);">📊</div>
             <div>
-                <div class="stat-value">{{ $classRate }}<span style="font-size:1rem;">%</span></div>
-                <div class="stat-label">Class Attendance Rate</div>
+                <div class="app-kpi-value">{{ $classRate }}<span style="font-size:1rem;">%</span></div>
+                <div class="app-kpi-label">Class attendance rate</div>
                 <div style="margin-top:.5rem;">
                     <div class="progress-bar-wrap">
                         <div class="progress-bar {{ $classRate >= 75 ? 'progress-success' : 'progress-danger' }}"
-                             style="width:{{ $classRate }}%;"></div>
+                             data-progress="{{ $classRate }}"></div>
                     </div>
                 </div>
             </div>
@@ -123,12 +120,12 @@
                                 <td>
                                     @php $pct = $student->reportPercent; @endphp
                                     <div style="display:flex;align-items:center;gap:.6rem;">
-                                        <span style="font-weight:700;font-size:.9rem;min-width:42px;{{ $pct >= 75 ? 'color:#6ee7b7' : 'color:#fca5a5' }}">
+                                        <span class="{{ $pct >= 75 ? 'text-success' : 'text-danger' }}" style="font-weight:700;font-size:.9rem;min-width:42px;">
                                             {{ $pct }}%
                                         </span>
                                         <div class="progress-bar-wrap" style="width:80px;">
                                             <div class="progress-bar {{ $pct >= 75 ? 'progress-success' : 'progress-danger' }}"
-                                                 style="width:{{ $pct }}%;"></div>
+                                                 data-progress="{{ $pct }}"></div>
                                         </div>
                                     </div>
                                 </td>
@@ -152,8 +149,9 @@
     </div>
 
     {{-- Legend --}}
-    <div style="margin-top:1rem;padding:1rem 1.25rem;background:var(--surface);border-radius:10px;border:1px solid var(--sidebar-border);display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted);">
+    <div style="margin-top:1rem;padding:1rem 1.25rem;background:var(--surface);border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-card);display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted);">
         <span>📌 <strong style="color:var(--text);">Threshold:</strong> ≥75% = Good &nbsp;|&nbsp; 50–74% = At Risk &nbsp;|&nbsp; &lt;50% = Critical</span>
         <span>📅 <strong style="color:var(--text);">Period:</strong> {{ \Carbon\Carbon::parse($dateFrom)->format('F j') }} – {{ \Carbon\Carbon::parse($dateTo)->format('F j, Y') }}</span>
+    </div>
     </div>
 </x-app-layout>

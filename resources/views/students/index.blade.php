@@ -1,16 +1,14 @@
 <x-app-layout>
     <x-slot name="title">Students</x-slot>
 
-    {{-- Header --}}
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;">
-        <div>
-            <h2 style="font-size:1.4rem;font-weight:800;">Student Records</h2>
-            <p style="color:var(--text-muted);font-size:.85rem;margin-top:.2rem;">Manage all enrolled students in your class.</p>
-        </div>
-        <a href="{{ route('students.create') }}" class="btn btn-primary">➕ Add Student</a>
-    </div>
+    <x-app-banner title="Student records">
+        <x-slot name="subtitle">Manage all enrolled students in your class.</x-slot>
+        <x-slot name="actions">
+            <a href="{{ route('students.create') }}" class="btn btn-primary">➕ Add student</a>
+        </x-slot>
+    </x-app-banner>
 
-    {{-- Filters --}}
+    <div class="app-page">
     <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-body" style="padding:1rem 1.5rem;">
             <form method="GET" action="{{ route('students.index') }}" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
@@ -85,10 +83,10 @@
                                 <td style="color:var(--text-muted);font-size:.8rem;">{{ $student->email ?? '—' }}</td>
                                 <td>
                                     <div style="display:flex;align-items:center;gap:.6rem;">
-                                        <span style="font-weight:700;font-size:.85rem;{{ $pct >= 75 ? 'color:#6ee7b7' : 'color:#fca5a5' }}">{{ $pct }}%</span>
+                                        <span class="{{ $pct >= 75 ? 'text-success' : 'text-danger' }}" style="font-weight:700;font-size:.85rem;">{{ $pct }}%</span>
                                         <div class="progress-bar-wrap" style="width:60px;">
                                             <div class="progress-bar {{ $pct >= 75 ? 'progress-success' : 'progress-danger' }}"
-                                                 style="width:{{ $pct }}%;"></div>
+                                                 data-progress="{{ $pct }}"></div>
                                         </div>
                                     </div>
                                 </td>
@@ -122,5 +120,6 @@
                 {{ $students->links() }}
             </div>
         @endif
+    </div>
     </div>
 </x-app-layout>

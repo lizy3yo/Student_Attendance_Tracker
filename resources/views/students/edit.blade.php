@@ -1,14 +1,15 @@
 <x-app-layout>
     <x-slot name="title">Edit Student</x-slot>
 
-    <div style="max-width:640px;">
-        <div style="margin-bottom:1.5rem;">
-            <a href="{{ route('students.index') }}" style="color:var(--text-muted);text-decoration:none;font-size:.85rem;">
-                ← Back to Students
-            </a>
-            <h2 style="font-size:1.4rem;font-weight:800;margin-top:.5rem;">Edit Student</h2>
-            <p style="color:var(--text-muted);font-size:.85rem;">Update the information for <strong>{{ $student->full_name }}</strong>.</p>
-        </div>
+    <x-app-banner title="Edit student">
+        <x-slot name="subtitle">Update the information for {{ $student->full_name }}.</x-slot>
+    </x-app-banner>
+
+    <div class="app-page">
+        <div style="max-width:640px;">
+            <p style="margin-bottom:1rem;">
+                <a href="{{ route('students.index') }}" style="color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;">← Back to students</a>
+            </p>
 
         <div class="card">
             <div class="card-body">
@@ -57,6 +58,7 @@
                     </div>
                 </form>
             </div>
+        </div>
         </div>
     </div>
 </x-app-layout>

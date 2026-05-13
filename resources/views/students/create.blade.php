@@ -1,14 +1,15 @@
 <x-app-layout>
     <x-slot name="title">Add Student</x-slot>
 
-    <div style="max-width:640px;">
-        <div style="margin-bottom:1.5rem;">
-            <a href="{{ route('students.index') }}" style="color:var(--text-muted);text-decoration:none;font-size:.85rem;">
-                ← Back to Students
-            </a>
-            <h2 style="font-size:1.4rem;font-weight:800;margin-top:.5rem;">Add New Student</h2>
-            <p style="color:var(--text-muted);font-size:.85rem;">Fill in the student details below.</p>
-        </div>
+    <x-app-banner title="Add new student">
+        <x-slot name="subtitle">Fill in the student details below.</x-slot>
+    </x-app-banner>
+
+    <div class="app-page">
+        <div style="max-width:640px;">
+            <p style="margin-bottom:1rem;">
+                <a href="{{ route('students.index') }}" style="color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;">← Back to students</a>
+            </p>
 
         <div class="card">
             <div class="card-body">
@@ -59,6 +60,7 @@
                     </div>
                 </form>
             </div>
+        </div>
         </div>
     </div>
 </x-app-layout>
