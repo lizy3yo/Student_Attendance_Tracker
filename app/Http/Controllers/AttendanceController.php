@@ -6,6 +6,8 @@ use App\Models\Attendance;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
@@ -32,32 +34,68 @@ class AttendanceController extends Controller
         $request->validate([
             'date'       => ['required', 'date'],
             'attendance' => ['required', 'array'],
-            'attendance.*.status' => ['required', 'in:present,absent,late'],
+            'attendance.*.status' => ['nullable', 'in:present,absent,late'],
         ]);
 
         $teacher = Auth::user();
         $date    = $request->input('date');
 
-        foreach ($request->input('attendance') as $studentId => $record) {
-            // Only process students belonging to this teacher
-            $student = Student::where('id', $studentId)
-                ->where('user_id', $teacher->id)
-                ->first();
+        try {
+            DB::transaction(function () use ($request, $teacher, $date) {
+                foreach ($request->input('attendance') as $studentId => $record) {
+                    $studentId = (int)$studentId;
+                    $status = $record['status'] ?? null;
+                    
+                    // Skip if no status (pending)
+                    if (empty($status)) {
+                        continue;
+                    }
+                    
+                    // Only process students belonging to this teacher
+                    $student = Student::where('id', $studentId)
+                        ->where('user_id', $teacher->id)
+                        ->first();
 
-            if (!$student) continue;
+                    if (!$student) continue;
 
-            Attendance::updateOrCreate(
-                ['student_id' => $studentId, 'date' => $date],
-                [
-                    'user_id' => $teacher->id,
-                    'status'  => $record['status'],
-                    'remarks' => $record['remarks'] ?? null,
-                ]
-            );
+                    // Use upsert for better atomicity
+                    Attendance::upsert(
+                        [[
+                            'student_id' => $studentId,
+                            'user_id' => $teacher->id,
+                            'date' => $date,
+                            'status' => $status,
+                            'remarks' => $record['remarks'] ?? null,
+                        ]],
+                        ['student_id', 'date'], // unique key columns
+                        ['status', 'remarks', 'updated_at'] // columns to update
+                    );
+                }
+            });
+
+            // If AJAX request, return JSON
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Attendance saved successfully for ' . \Carbon\Carbon::parse($date)->format('F j, Y') . '.'
+                ]);
+            }
+
+            return redirect()->route('attendance.index', ['date' => $date])
+                ->with('success', 'Attendance saved successfully for ' . \Carbon\Carbon::parse($date)->format('F j, Y') . '.');
+        } catch (\Exception $e) {
+            Log::error('Attendance Save Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error saving attendance: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->route('attendance.index', ['date' => $date])
+                ->with('error', 'Error saving attendance: ' . $e->getMessage());
         }
-
-        return redirect()->route('attendance.index', ['date' => $date])
-            ->with('success', 'Attendance saved successfully for ' . \Carbon\Carbon::parse($date)->format('F j, Y') . '.');
     }
 
     public function destroy(Request $request)
