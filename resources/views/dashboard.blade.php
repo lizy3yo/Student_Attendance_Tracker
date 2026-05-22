@@ -837,7 +837,7 @@
     <div class="dashboard-grid-bottom">
         <div class="modern-card">
             <div class="modern-card-header">
-                <h2 class="modern-card-title">Students by section</h2>
+                <h2 class="modern-card-title">Course and Block Overview</h2>
             </div>
             @if(($sectionCounts ?? collect())->isEmpty())
                 <div class="empty-state" style="padding:2rem 1.25rem;">
@@ -845,7 +845,7 @@
                         <i data-lucide="tag" data-size="34"></i>
                     </div>
                     <h3>No students yet</h3>
-                    <p>Add students to see section breakdown.</p>
+                    <p>Add students to see course and block breakdown.</p>
                 </div>
             @else
                 <ul class="attendant-list">
@@ -857,7 +857,7 @@
                                 </div>
                                 <div class="attendant-meta">
                                     <span class="attendant-name">{{ $row->section ?? '—' }}</span>
-                                    <span style="font-size:0.8125rem;color:var(--text-muted);">Section</span>
+                                    <span style="font-size:0.8125rem;color:var(--text-muted);">Course & Block</span>
                                 </div>
                             </div>
                             <div class="attendant-right attendant-days">{{ $row->total }} <span>students</span></div>

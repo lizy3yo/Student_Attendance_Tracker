@@ -359,6 +359,29 @@
             color: #1e40af;
         }
 
+        /* Modal close button (standardized) */
+        .modal-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            background: #ffffff;
+            border: 1px solid rgba(156,163,175,0.35);
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+            z-index: 40;
+            color: var(--text-muted);
+        }
+        .modal-close:hover { background: #fff7f5; color: var(--text-main); border-color: rgba(34,197,94,0.18); }
+        .modal-close:focus { outline: 2px solid rgba(34,197,94,0.18); outline-offset: 2px; }
+        .modal-close svg { width: 14px; height: 14px; stroke-width: 2px; }
+
         .toast-icon {
             flex-shrink: 0;
             width: 20px;
@@ -809,7 +832,7 @@
         }
     </style>
 </head>
-<body class="nav-loading">
+<body>
 
     {{-- Top Navigation --}}
     <nav class="topbar">
@@ -820,7 +843,7 @@
             </a>
             <div class="nav-links">
                 <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Overview</a>
-                <a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">Manage Attendance</a>
+                <a href="{{ route('classes.index') }}" class="nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}">Classes</a>
                 <a href="{{ route('students.index') }}" class="nav-link {{ request()->routeIs('students.*') ? 'active' : '' }}">Student's List</a>
                 <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">Reports</a>
             </div>
@@ -855,63 +878,7 @@
     </style>
 
     <script>
-        window.addEventListener('load', () => {
-            document.body.classList.remove('nav-loading');
-        });
-
-        // Add content skeleton loading on navigation
-        document.addEventListener('DOMContentLoaded', () => {
-            const navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
-            const mainWrap = document.querySelector('.main-wrap');
-            const skeletons = document.querySelectorAll('.content-skeleton');
-
-            function getSkeletonType(href) {
-                if (href.includes('dashboard') || href === '/') {
-                    return 'dashboard';
-                } else if (href.includes('attendance')) {
-                    return 'table';
-                } else if (href.includes('students')) {
-                    return 'table';
-                } else if (href.includes('reports')) {
-                    return 'reports';
-                }
-                return 'dashboard';
-            }
-
-            function showSkeleton(skeletonType) {
-                skeletons.forEach(skeleton => {
-                    const type = skeleton.getAttribute('data-skeleton-type');
-                    if (type === skeletonType) {
-                        skeleton.style.display = 'block';
-                    } else {
-                        skeleton.style.display = 'none';
-                    }
-                });
-            }
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    // Don't trigger loading for the current page
-                    if (!link.classList.contains('active')) {
-                        const href = link.getAttribute('href');
-                        const skeletonType = getSkeletonType(href);
-                        
-                        if (mainWrap) {
-                            mainWrap.classList.add('content-loading');
-                            showSkeleton(skeletonType);
-                        }
-                    }
-                });
-            });
-
-            // Remove loading state when page fully loads
-            window.addEventListener('load', () => {
-                if (mainWrap) {
-                    mainWrap.classList.remove('content-loading');
-                    skeletons.forEach(skeleton => skeleton.style.display = 'none');
-                }
-            });
-        });
+        // Page transitions are handled naturally by the browser to prevent layout flickering.
     </script>
 
     {{-- Mobile Sidebar --}}
@@ -927,7 +894,7 @@
             </div>
         </div>
         <a href="{{ route('dashboard') }}" class="mobile-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Overview</a>
-        <a href="{{ route('attendance.index') }}" class="mobile-nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}">Manage Attendance</a>
+        <a href="{{ route('classes.index') }}" class="mobile-nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}">Classes</a>
         <a href="{{ route('students.index') }}" class="mobile-nav-link {{ request()->routeIs('students.*') ? 'active' : '' }}">Student's List</a>
         <a href="{{ route('reports.index') }}" class="mobile-nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">Reports</a>
     </div>
@@ -940,6 +907,13 @@
         @endif
         @if(session('error'))
             <div class="alert alert-error" style="display: none;">{{ session('error') }}</div>
+        @endif
+        @if($errors->any())
+            <div class="alert alert-error" style="display: none;">
+                @foreach($errors->all() as $error)
+                    {{ $error }}
+                @endforeach
+            </div>
         @endif
 
         {{-- Content Skeleton Loading - Dashboard --}}

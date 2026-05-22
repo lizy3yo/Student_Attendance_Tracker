@@ -20,9 +20,9 @@
                            value="{{ $dateTo }}" max="{{ today()->toDateString() }}">
                 </div>
                 <div style="min-width:160px;">
-                    <label class="form-label">Section</label>
+                    <label class="form-label">Course and Block</label>
                     <select class="form-control" name="section">
-                        <option value="">All Sections</option>
+                        <option value="">All Courses and Blocks</option>
                         @foreach($sections as $sec)
                             <option value="{{ $sec }}" {{ $section === $sec ? 'selected' : '' }}>{{ $sec }}</option>
                         @endforeach
@@ -115,7 +115,7 @@
                             <th>#</th>
                             <th>Student ID</th>
                             <th>Full Name</th>
-                            <th>Section</th>
+                            <th>Course and Block</th>
                             <th style="text-align:center;">Present</th>
                             <th style="text-align:center;">Absent</th>
                             <th style="text-align:center;">Late</th>

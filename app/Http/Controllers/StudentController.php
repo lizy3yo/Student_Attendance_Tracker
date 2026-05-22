@@ -19,7 +19,7 @@ class StudentController extends Controller
                 ->first();
         }
 
-        $query = Student::where('user_id', Auth::id());
+        $query = Student::with('classes')->where('user_id', Auth::id());
 
         if ($request->filled('search')) {
             $s = $request->search;
@@ -48,15 +48,37 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
+
+        if ($request->filled('student_id_number')) {
+            $idVal = preg_replace('/\D/', '', $request->input('student_id_number'));
+            $request->merge(['student_id_number' => $idVal]);
+        }
+
+        if ($request->filled('middle_name')) {
+            $request->merge([
+                'first_name' => $request->input('first_name') . ' ' . $request->input('middle_name'),
+            ]);
+        }
+        if ($request->filled('suffix')) {
+            $request->merge([
+                'last_name' => $request->input('last_name') . ' ' . $request->input('suffix'),
+            ]);
+        }
+
         $data = $request->validate([
             'student_id_number' => ['required', 'string', 'max:30', 'unique:students,student_id_number'],
             'first_name'        => ['required', 'string', 'max:100'],
             'last_name'         => ['required', 'string', 'max:100'],
-            'section'           => ['required', 'string', 'max:50'],
+            'section'           => ['nullable', 'string', 'max:50'],
             'email'             => ['nullable', 'email', 'max:150', 'ends_with:@' . self::STUDENT_EMAIL_DOMAIN],
+        ], [], [
+            'section' => 'course and block',
         ]);
 
         $data['user_id'] = Auth::id();
+        if (empty($data['section'])) {
+            $data['section'] = 'N/A';
+        }
         if (empty($data['email'])) {
             $data['email'] = $data['student_id_number'] . '@' . self::STUDENT_EMAIL_DOMAIN;
         }
@@ -77,13 +99,39 @@ class StudentController extends Controller
     {
         $this->authorize('update', $student);
 
+        if ($request->filled('student_id_number')) {
+            $idVal = preg_replace('/\D/', '', $request->input('student_id_number'));
+            $request->merge(['student_id_number' => $idVal]);
+        }
+
+        if ($request->filled('middle_name')) {
+            $request->merge([
+                'first_name' => $request->input('first_name') . ' ' . $request->input('middle_name'),
+            ]);
+        }
+        if ($request->filled('suffix')) {
+            $request->merge([
+                'last_name' => $request->input('last_name') . ' ' . $request->input('suffix'),
+            ]);
+        }
+
         $data = $request->validate([
             'student_id_number' => ['required', 'string', 'max:30', "unique:students,student_id_number,{$student->id}"],
             'first_name'        => ['required', 'string', 'max:100'],
             'last_name'         => ['required', 'string', 'max:100'],
-            'section'           => ['required', 'string', 'max:50'],
+            'section'           => ['nullable', 'string', 'max:50'],
             'email'             => ['nullable', 'email', 'max:150', 'ends_with:@' . self::STUDENT_EMAIL_DOMAIN],
+        ], [], [
+            'section' => 'course and block',
         ]);
+
+        if ($request->has('section')) {
+            if (empty($data['section'])) {
+                $data['section'] = 'N/A';
+            }
+        } else {
+            unset($data['section']);
+        }
 
         if (empty($data['email'])) {
             $data['email'] = $data['student_id_number'] . '@' . self::STUDENT_EMAIL_DOMAIN;

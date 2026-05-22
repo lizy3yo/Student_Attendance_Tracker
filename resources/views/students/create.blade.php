@@ -27,7 +27,7 @@
                             @error('student_id_number')<div class="form-error">{{ $message }}</div>@enderror
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="section">Section *</label>
+                            <label class="form-label" for="section">Course and Block *</label>
                             <input class="form-control" id="section" type="text"
                                    name="section" value="{{ old('section') }}"
                                    placeholder="e.g. BSIT-3A" required>
@@ -36,7 +36,7 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label" for="first_name">First Name *</label>
+                            <label class="form-label" for="first_name">Given Name *</label>
                             <input class="form-control" id="first_name" type="text"
                                    name="first_name" value="{{ old('first_name') }}"
                                    placeholder="Juan" required>

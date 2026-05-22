@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 // Redirect root to dashboard
 Route::get('/', fn () => redirect()->route('dashboard'));
@@ -19,13 +19,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Students (CRUD)
     Route::resource('students', StudentController::class)->except(['show']);
 
-    // Attendance – bulk mark & clear
-    Route::get('/attendance',         [AttendanceController::class, 'index'])->name('attendance.index');
-    Route::post('/attendance',        [AttendanceController::class, 'store'])->name('attendance.store');
-    Route::delete('/attendance/clear',[AttendanceController::class, 'destroy'])->name('attendance.destroy');
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+    // Classes
+    Route::get('/classes', 'App\Http\Controllers\SchoolClassController@index')->name('classes.index');
+    Route::post('/classes', 'App\Http\Controllers\SchoolClassController@store')->name('classes.store');
+    Route::get('/classes/{class}', 'App\Http\Controllers\SchoolClassController@show')->name('classes.show');
+    Route::put('/classes/{class}', 'App\Http\Controllers\SchoolClassController@update')->name('classes.update');
+    Route::delete('/classes/{class}', 'App\Http\Controllers\SchoolClassController@destroy')->name('classes.destroy');
+    Route::post('/classes/{class}/enroll', 'App\Http\Controllers\SchoolClassController@enroll')->name('classes.enroll');
+    Route::post('/classes/{class}/unenroll/{student}', 'App\Http\Controllers\SchoolClassController@unenroll')->name('classes.unenroll');
+    Route::post('/classes/{class}/bulk-unenroll', 'App\Http\Controllers\SchoolClassController@bulkUnenroll')->name('classes.bulkUnenroll');
+    Route::post('/classes/{class}/attendance', 'App\Http\Controllers\SchoolClassController@saveAttendance')->name('classes.attendance.store');
 
     // Profile (from Breeze)
     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');

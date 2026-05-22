@@ -14,6 +14,8 @@ class ReportController extends Controller
             'date_from' => ['nullable', 'date'],
             'date_to'   => ['nullable', 'date', 'after_or_equal:date_from'],
             'section'   => ['nullable', 'string', 'max:50'],
+        ], [], [
+            'section' => 'course and block',
         ]);
 
         $teacher = Auth::user();

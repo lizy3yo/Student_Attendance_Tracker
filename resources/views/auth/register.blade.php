@@ -7,7 +7,7 @@
     </div>
     <div class="auth-sub">Register a new teacher account to get started</div>
 
-    <form method="POST" action="{{ route('register') }}" id="register-form">
+    <form method="POST" action="{{ route('register') }}" id="register-form" data-initial-step="{{ $errors->has('terms') ? 3 : ($errors->hasAny(['email','password','password_confirmation']) ? 2 : 1) }}">
         @csrf
 
         <div style="padding:1rem 1rem 1.15rem;border:1px solid #d7f3df;border-radius:18px;background:#fff;box-shadow:var(--shadow-card);margin-bottom:1rem;">
@@ -262,7 +262,7 @@
             const legalSubtitle = document.getElementById('legal-modal-subtitle');
             const legalClose = document.getElementById('legal-modal-close');
             const legalTriggers = Array.from(document.querySelectorAll('[data-open-legal-modal]'));
-            const initialStep = <?php echo $initialStep; ?>;
+            const initialStep = parseInt(document.getElementById('register-form')?.dataset?.initialStep || '1', 10);
             const emailDomain = 'gordoncollege.edu.ph';
             let currentStep = 1;
 
@@ -446,10 +446,6 @@
                     return false;
                 }
 
-                if (step === 3 && termsInput && termsInput.checked) {
-                    termsInput.setCustomValidity('');
-                }
-
                 return requiredInputs.every((input) => input.checkValidity());
             }
 
@@ -560,12 +556,6 @@
                     syncPasswordValidity();
                 });
             });
-
-            if (termsInput) {
-                termsInput.addEventListener('change', () => {
-                    termsInput.setCustomValidity(termsInput.checked ? '' : 'Please accept the Terms & Conditions.');
-                });
-            }
 
             nextButtons.forEach((button) => {
                 button.addEventListener('click', advanceStep);

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @property int $id
  * @property int|null $reportTotal
  * @property int|null $reportPresent
  * @property int|null $reportAbsent
@@ -49,6 +50,13 @@ class Student extends Model
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    // Classes this student is enrolled in
+    public function classes()
+    {
+        return $this->belongsToMany(SchoolClass::class, 'class_student', 'student_id', 'class_id')
+                    ->withTimestamps();
     }
 
     // Attendance percentage
