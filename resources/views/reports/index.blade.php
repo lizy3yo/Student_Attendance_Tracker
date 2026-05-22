@@ -32,10 +32,7 @@
                     <i data-lucide="bar-chart-3" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
                     Generate
                 </button>
-                <a href="{{ route('reports.index') }}" class="btn btn-secondary">
-                    <i data-lucide="rotate-ccw" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
-                    Reset
-                </a>
+                {{-- Reset button removed per request --}}
             </form>
         </div>
     </div>
@@ -77,13 +74,27 @@
         </div>
     </div>
 
+    {{-- Legend --}}
+    <div style="margin:1rem 0 1.5rem;padding:1rem 1.25rem;background:var(--surface);border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-card);display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted);">
+        <span style="display:inline-flex;align-items:center;gap:.35rem;">
+            <i data-lucide="pin" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
+            <strong style="color:var(--text);">Threshold:</strong> ≥75% = Good &nbsp;|&nbsp; 50–74% = At Risk &nbsp;|&nbsp; &lt;50% = Critical
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:.35rem;">
+            <i data-lucide="calendar" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
+            <strong style="color:var(--text);">Period:</strong> {{ \Carbon\Carbon::parse($dateFrom)->format('F j') }} – {{ \Carbon\Carbon::parse($dateTo)->format('F j, Y') }}
+        </span>
+    </div>
+
     {{-- Report Table --}}
     <div class="card">
-        <div class="card-header">
-            <span class="card-title">
-                <i data-lucide="clipboard-list" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
-                Student Breakdown
-            </span>
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+            <div style="display:flex;align-items:center;gap:.75rem;">
+                <div style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--surface);border:1px solid var(--border-color);box-shadow:var(--shadow-card);">
+                    <i data-lucide="clipboard-list" data-size="18" style="color:var(--text);"></i>
+                </div>
+                <span class="card-title" style="font-weight:600;">Student Breakdown</span>
+            </div>
             <span style="font-size:.75rem;color:var(--text-muted);">
                 {{ \Carbon\Carbon::parse($dateFrom)->format('M j') }} – {{ \Carbon\Carbon::parse($dateTo)->format('M j, Y') }}
             </span>
@@ -174,16 +185,5 @@
         @endif
     </div>
 
-    {{-- Legend --}}
-    <div style="margin-top:1rem;padding:1rem 1.25rem;background:var(--surface);border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-card);display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted);">
-        <span style="display:inline-flex;align-items:center;gap:.35rem;">
-            <i data-lucide="pin" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
-            <strong style="color:var(--text);">Threshold:</strong> ≥75% = Good &nbsp;|&nbsp; 50–74% = At Risk &nbsp;|&nbsp; &lt;50% = Critical
-        </span>
-        <span style="display:inline-flex;align-items:center;gap:.35rem;">
-            <i data-lucide="calendar" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
-            <strong style="color:var(--text);">Period:</strong> {{ \Carbon\Carbon::parse($dateFrom)->format('F j') }} – {{ \Carbon\Carbon::parse($dateTo)->format('F j, Y') }}
-        </span>
-    </div>
     </div>
 </x-app-layout>
