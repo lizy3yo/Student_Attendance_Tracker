@@ -8,6 +8,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
@@ -45,13 +48,33 @@ class LoginRequest extends FormRequest
 
         $remember = $this->boolean('remember');
 
-        if (! Auth::guard('web')->attempt($this->only('email', 'password'), $remember)) {
+        // Normalize email and perform an explicit user lookup+password check.
+        $email = Str::of($this->input('email', ''))->trim()->lower()->toString();
+        $password = $this->input('password', '');
+
+        $user = User::where('email', $email)->first();
+
+        if (! $user) {
+            Log::warning('Login attempt failed: user not found', ['email' => $email, 'ip' => $this->ip()]);
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
+
+        if (! Hash::check($password, $user->password)) {
+            Log::warning('Login attempt failed: invalid password', ['email' => $email, 'user_id' => $user->id, 'ip' => $this->ip()]);
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        // Successful authentication — log non-sensitive info and sign in.
+        Log::info('Login successful', ['email' => $email, 'user_id' => $user->id, 'ip' => $this->ip()]);
+        Auth::guard('web')->login($user, $remember);
 
         RateLimiter::clear($this->throttleKey());
     }
