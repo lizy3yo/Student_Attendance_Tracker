@@ -11,27 +11,54 @@
             <form method="GET" action="{{ route('reports.index') }}" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
                 <div>
                     <label class="form-label" for="date_from">From</label>
-                    <input class="form-control" id="date_from" type="date" name="date_from"
-                           value="{{ $dateFrom }}" max="{{ today()->toDateString() }}">
+                    <select class="form-control" id="date_from" name="date_from"
+                            onchange="if (this.form.date_to.value && this.value > this.form.date_to.value) this.form.date_to.value = this.value; this.form.submit();"
+                            {{ $availableDates->isEmpty() ? 'disabled' : '' }}>
+                        @forelse($availableDates as $availableDate)
+                            <option value="{{ $availableDate }}" {{ $dateFrom === $availableDate ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::parse($availableDate)->format('m/d/Y') }}
+                            </option>
+                        @empty
+                            <option value="">No report dates available</option>
+                        @endforelse
+                    </select>
                 </div>
                 <div>
                     <label class="form-label" for="date_to">To</label>
-                    <input class="form-control" id="date_to" type="date" name="date_to"
-                           value="{{ $dateTo }}" max="{{ today()->toDateString() }}">
+                    <select class="form-control" id="date_to" name="date_to"
+                            onchange="if (this.form.date_from.value && this.value < this.form.date_from.value) this.form.date_from.value = this.value; this.form.submit();"
+                            {{ $availableDates->isEmpty() ? 'disabled' : '' }}>
+                        @forelse($availableDates as $availableDate)
+                            <option value="{{ $availableDate }}" {{ $dateTo === $availableDate ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::parse($availableDate)->format('m/d/Y') }}
+                            </option>
+                        @empty
+                            <option value="">No report dates available</option>
+                        @endforelse
+                    </select>
                 </div>
                 <div style="min-width:160px;">
-                    <label class="form-label">Course and Block</label>
-                    <select class="form-control" name="section">
-                        <option value="">All Courses and Blocks</option>
-                        @foreach($sections as $sec)
-                            <option value="{{ $sec }}" {{ $section === $sec ? 'selected' : '' }}>{{ $sec }}</option>
+                    <label class="form-label">Classcode</label>
+                    <select class="form-control" name="section" onchange="this.form.submit()">
+                        <option value="">Class Code</option>
+                        @foreach($classFilters as $cls)
+                            <option value="{{ $cls->id }}" {{ (string) $section === (string) $cls->id ? 'selected' : '' }}>
+                                {{ $cls->class_code ? ($cls->class_code . ' - ' . $cls->class_name) : $cls->class_name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
-                <button class="btn btn-primary" type="submit">
-                    <i data-lucide="bar-chart-3" data-size="18" style="margin-right:.35rem;vertical-align:middle;"></i>
-                    Generate
-                </button>
+                <div style="min-width:160px;">
+                    <label class="form-label">Program, Year & Block</label>
+                    <select class="form-control" name="student_section" onchange="this.form.submit()">
+                        <option value="">All Programs</option>
+                        @foreach($studentSections as $sec)
+                            <option value="{{ $sec }}" {{ $studentSection === $sec ? 'selected' : '' }}>
+                                {{ $sec }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 {{-- Reset button removed per request --}}
             </form>
         </div>
@@ -100,9 +127,9 @@
             </span>
         </div>
         @if($students->isEmpty())
-            <div class="empty-state">
-                <div class="icon" aria-hidden="true">
-                    <i data-lucide="inbox" data-size="34"></i>
+            <div class="empty-state" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;text-align:center;">
+                <div class="icon" aria-hidden="true" style="margin-bottom:1rem;">
+                    <i data-lucide="inbox" data-size="48"></i>
                 </div>
                 <h3>No data for this period</h3>
                 <p>Adjust the date range or add students and mark attendance first.</p>
@@ -115,7 +142,7 @@
                             <th>#</th>
                             <th>Student ID</th>
                             <th>Full Name</th>
-                            <th>Course and Block</th>
+                            <th>Program, Year & Block</th>
                             <th style="text-align:center;">Present</th>
                             <th style="text-align:center;">Absent</th>
                             <th style="text-align:center;">Late</th>
@@ -134,7 +161,7 @@
                                     </span>
                                 </td>
                                 <td style="font-weight:600;">{{ $student->full_name }}</td>
-                                <td><span class="badge badge-muted">{{ $student->section }}</span></td>
+                                <td><span class="badge badge-muted">{{ $student->reportCourseBlock }}</span></td>
                                 <td style="text-align:center;">
                                     <span style="color:#6ee7b7;font-weight:700;">{{ $student->reportPresent }}</span>
                                 </td>

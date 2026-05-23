@@ -85,10 +85,14 @@
                 first_name: '',
                 last_name: '',
                 section: '',
+                year: '',
                 email: ''
             },
             createStudent: {
                 student_id_number: @js(old('student_id_number','')),
+                course: @js(old('course','')),
+                block: @js(old('block','')),
+                year: @js(old('year','')),
                 email: @js(old('email',''))
             },
             editStudent: {
@@ -99,6 +103,9 @@
                 last_name: @js(old('last_name', $editLastName ?? '')),
                 suffix: @js(old('suffix', $editSuffix ?? '')),
                 section: @js(old('section', $editStudent?->section ?? '')),
+                course: @js(old('course', '')),
+                block: @js(old('block', '')),
+                year: @js(old('year', $editStudent?->year ?? '')),
                 email: @js(old('email', $editStudent?->email ?? ''))
             },
             syncCreateEmail() {
@@ -109,7 +116,7 @@
                 const id = (this.editStudent.student_id_number || '').trim();
                 this.editStudent.email = id ? `${id}@${this.emailDomain}` : '';
             },
-            openEdit(id, studentIdNumber, firstName, lastName, section, email) {
+            openEdit(id, studentIdNumber, firstName, lastName, section, year, email) {
                 // Parse firstName (Given Name + Middle Name)
                 let firstNameVal = (firstName || '').trim();
                 let editFirstName = firstNameVal;
@@ -133,6 +140,18 @@
                     }
                 }
 
+                // Parse section (Course-Block)
+                let editCourse = '';
+                let editBlock = '';
+                let editYear = year || '';
+                if (section) {
+                    const sectionParts = section.split('-');
+                    if (sectionParts.length >= 2) {
+                        editCourse = sectionParts[0].trim();
+                        editBlock = sectionParts[1].trim();
+                    }
+                }
+
                 this.editStudent = {
                     id: id,
                     student_id_number: studentIdNumber,
@@ -141,7 +160,10 @@
                     last_name: editLastName,
                     suffix: editSuffix,
                     section: section,
-                    email: email
+                    course: editCourse,
+                    block: editBlock,
+                    year: editYear,
+                    email: email || ''
                 }
                 $dispatch('open-modal', 'edit-student')
             }
@@ -161,7 +183,7 @@
                     <div style="flex:1;min-width:200px;">
                         <label class="form-label">Search</label>
                         <div style="position:relative;">
-                            <input class="form-control" type="text" name="search" value="{{ request('search') }}" placeholder="Name, Student ID, Course and Block…" style="padding-right:2.5rem;">
+                            <input class="form-control" type="text" name="search" value="{{ request('search') }}" placeholder="Name, Student ID, Program and Block…" style="padding-right:2.5rem;">
                             @if(request('search'))
                                 <a href="{{ route('students.index', array_filter(['section' => request('section')])) }}" 
                                    style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;text-decoration:none;transition:background-color 0.2s, color 0.2s;"
@@ -175,9 +197,9 @@
                         </div>
                     </div>
                     <div style="min-width:160px;">
-                        <label class="form-label">Course and Block</label>
+                        <label class="form-label">Program and Block</label>
                         <select class="form-control" name="section" onchange="this.form.submit()">
-                            <option value="">All Courses and Blocks</option>
+                            <option value="">All Programs and Blocks</option>
                             @foreach($sections as $sec)
                                 <option value="{{ $sec }}" {{ request('section') === $sec ? 'selected' : '' }}>{{ $sec }}</option>
                             @endforeach
@@ -197,9 +219,9 @@
             </div>
 
             @if($students->isEmpty())
-                <div class="empty-state">
-                    <div class="icon" aria-hidden="true">
-                        <i data-lucide="graduation-cap" data-size="34"></i>
+                <div class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; text-align: center;">
+                    <div class="icon" aria-hidden="true" style="margin-bottom: 1rem;">
+                        <i data-lucide="graduation-cap" data-size="64"></i>
                     </div>
                     <h3>No students found</h3>
                     <p>Add your first student to get started.</p>
@@ -215,7 +237,7 @@
                             <tr>
                                 <th>Student ID</th>
                                 <th>Name</th>
-                                <th>Course and Block</th>
+                                <th>Program, Year & Block</th>
                                 <th>Email</th>
                                 <th style="text-align: right; padding-right: 1.5rem;">Actions</th>
                             </tr>
@@ -228,6 +250,7 @@
                                     data-first-name="{{ $student->first_name }}"
                                     data-last-name="{{ $student->last_name }}"
                                     data-section="{{ $student->section }}"
+                                    data-year="{{ $student->year }}"
                                     data-email="{{ $student->email }}"
                                     data-classes="{{ $student->classes->map(fn($c) => ['class_code' => $c->class_code, 'class_name' => $c->class_name])->toJson() }}"
                                     x-on:click="
@@ -239,6 +262,7 @@
                                             first_name: $el.dataset.firstName,
                                             last_name: $el.dataset.lastName,
                                             section: $el.dataset.section,
+                                            year: $el.dataset.year,
                                             email: $el.dataset.email
                                         };
                                         $dispatch('open-modal', 'view-classes');
@@ -247,14 +271,26 @@
                                 >
                                     <td>{{ $student->student_id_number }}</td>
                                     <td style="color: var(--primary-dark); font-weight: 600;">
-                                        {{ $student->first_name }} {{ $student->last_name }}
+                                        @php
+                                            $lastName = $student->last_name;
+                                            $suffixes = ['Jr', 'Sr', 'II', 'III', 'IV'];
+                                            $suffix = '';
+                                            foreach ($suffixes as $s) {
+                                                if (str_ends_with($lastName, ' ' . $s)) {
+                                                    $suffix = $s;
+                                                    $lastName = trim(substr($lastName, 0, -strlen(' ' . $s)));
+                                                    break;
+                                                }
+                                            }
+                                        @endphp
+                                        {{ $lastName }}, {{ $student->first_name }}{{ $suffix ? ', ' . $suffix : '' }}
                                     </td>
-                                    <td>{{ $student->section }}</td>
+                                    <td>{{ $student->year ? str_replace(' - ', $student->year, $student->section) : $student->section }}</td>
                                     <td>{{ $student->email }}</td>
                                     <td style="text-align: right; padding-right: 1.5rem; white-space: nowrap;">
                                         <div style="display: inline-flex; gap: 0.5rem; justify-content: flex-end;">
                                             <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 6px; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem; height: 32px; padding: 0.25rem 0.65rem;"
-                                                    x-on:click.stop="openEdit($el.closest('tr').dataset.id, $el.closest('tr').dataset.studentIdNumber, $el.closest('tr').dataset.firstName, $el.closest('tr').dataset.lastName, $el.closest('tr').dataset.section, $el.closest('tr').dataset.email)">
+                                                    x-on:click.stop="openEdit($el.closest('tr').dataset.id, $el.closest('tr').dataset.studentIdNumber, $el.closest('tr').dataset.firstName, $el.closest('tr').dataset.lastName, $el.closest('tr').dataset.section, $el.closest('tr').dataset.year, $el.closest('tr').dataset.email)">
                                                 <i data-lucide="edit-3" data-size="14"></i>
                                                 Edit
                                             </button>
@@ -377,23 +413,62 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="email">Email Address (optional)</label>
-                <input
-                    class="form-control"
-                    id="email"
-                    type="email"
-                    name="email"
-                    x-model="createStudent.email"
-                    readonly
-                    placeholder="studentnumber@gordoncollege.edu.ph"
-                >
-                <div style="font-size:0.8125rem;color:var(--text-muted);margin-top:0.35rem;">
-                    Email is auto-generated as <strong>{student_number}@gordoncollege.edu.ph</strong>.
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="course">Program *</label>
+                    <select class="form-control" id="course" name="course" x-model="createStudent.course" required>
+                        <option value="">Select program</option>
+                        <option value="BSIT">BSIT</option>
+                        <option value="BSEMC">BSEMC</option>
+                        <option value="BSCS">BSCS</option>
+                    </select>
+                    @error('course')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('email')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
+
+                <div class="form-group">
+                    <label class="form-label" for="year">Year *</label>
+                    <select class="form-control" id="year" name="year" x-model="createStudent.year" required>
+                        <option value="">Select year</option>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                        <option value="5">5th Year</option>
+                    </select>
+                    @error('year')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="block">Block *</label>
+                    <select class="form-control" id="block" name="block" x-model="createStudent.block" required>
+                        <option value="">Select block</option>
+                        @foreach(range('A', 'J') as $blockLetter)
+                            <option value="{{ $blockLetter }}">{{ $blockLetter }}</option>
+                        @endforeach
+                    </select>
+                    @error('block')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address (optional)</label>
+                    <input
+                        class="form-control"
+                        id="email"
+                        type="email"
+                        name="email"
+                        x-model="createStudent.email"
+                        readonly
+                        placeholder="studentnumber@gordoncollege.edu.ph"
+                    >
+                </div>
             </div>
 
             <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap;justify-content:flex-end;align-items:center;">
@@ -511,23 +586,62 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="edit_email">Email Address (optional)</label>
-                <input
-                    class="form-control"
-                    id="edit_email"
-                    type="email"
-                    name="email"
-                    x-model="editStudent.email"
-                    readonly
-                    placeholder="studentnumber@gordoncollege.edu.ph"
-                >
-                <div style="font-size:0.8125rem;color:var(--text-muted);margin-top:0.35rem;">
-                    Email is auto-generated as <strong>{student_number}@gordoncollege.edu.ph</strong>.
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit_course">Program *</label>
+                    <select class="form-control" id="edit_course" name="course" x-model="editStudent.course" required>
+                        <option value="">Select program</option>
+                        <option value="BSIT">BSIT</option>
+                        <option value="BSEMC">BSEMC</option>
+                        <option value="BSCS">BSCS</option>
+                    </select>
+                    @error('course')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('email')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
+
+                <div class="form-group">
+                    <label class="form-label" for="edit_year">Year *</label>
+                    <select class="form-control" id="edit_year" name="year" x-model="editStudent.year" required>
+                        <option value="">Select year</option>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                        <option value="5">5th Year</option>
+                    </select>
+                    @error('year')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit_block">Block *</label>
+                    <select class="form-control" id="edit_block" name="block" x-model="editStudent.block" required>
+                        <option value="">Select block</option>
+                        @foreach(range('A', 'J') as $blockLetter)
+                            <option value="{{ $blockLetter }}">{{ $blockLetter }}</option>
+                        @endforeach
+                    </select>
+                    @error('block')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="edit_email">Email Address (optional)</label>
+                    <input
+                        class="form-control"
+                        id="edit_email"
+                        type="email"
+                        name="email"
+                        x-model="editStudent.email"
+                        readonly
+                        placeholder="studentnumber@gordoncollege.edu.ph"
+                    >
+                </div>
             </div>
 
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;flex-wrap:wrap;gap:.75rem;width:100%;">
@@ -599,7 +713,7 @@
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; gap: 0.75rem; flex-wrap: wrap;">
                 <button type="button" class="btn btn-secondary" style="border-radius: 8px; display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 500;"
-                        x-on:click="$dispatch('close'); openEdit(selectedStudent.id, selectedStudent.student_id_number, selectedStudent.first_name, selectedStudent.last_name, selectedStudent.section, selectedStudent.email)">
+                        x-on:click="$dispatch('close'); openEdit(selectedStudent.id, selectedStudent.student_id_number, selectedStudent.first_name, selectedStudent.last_name, selectedStudent.section, selectedStudent.year, selectedStudent.email)">
                     <i data-lucide="edit-3" data-size="16" style="vertical-align: middle;"></i>
                     Edit Student
                 </button>

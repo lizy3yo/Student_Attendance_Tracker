@@ -107,6 +107,12 @@
             color: #dc2626;
         }
 
+        /* Filters: keep semester and year inline on small screens */
+        .filters-inline .filter-item { min-width: 0; }
+        @media (max-width: 640px) {
+            .filters-inline .filter-item { flex: 1 1 0; width: auto; }
+        }
+
         @media (min-width: 768px) {
             .classes-kpi-grid {
                 grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -219,30 +225,32 @@
                         @endif
                     </div>
 
-                    {{-- Semester Filter --}}
-                    <div style="width: 200px; min-width: 200px; flex: 0 0 200px;">
-                        <select class="form-control" name="semester" onchange="this.form.submit()" style="width: 100%; height: 38px; border-radius: 8px; font-size: 0.85rem;">
-                            <option value="All">All Semesters</option>
-                            @foreach($semesters as $sem)
-                                <option value="{{ $sem }}" @selected(request('semester') == $sem)>{{ $sem }} Semester</option>
-                            @endforeach
-                            @if(count($semesters) === 0)
-                                <option value="First" @selected(request('semester') == 'First')>First Semester</option>
-                                <option value="Second" @selected(request('semester') == 'Second')>Second Semester</option>
-                                <option value="Midyear" @selected(request('semester') == 'Midyear')>Midyearster</option>
-                            @endif
-                        </select>
-                    </div>
+                    <div class="filters-inline" style="display:flex; gap:0.6rem; align-items:center;">
+                        {{-- Semester Filter --}}
+                        <div class="filter-item" style="flex: 0 0 200px; min-width: 0; width: 200px;">
+                            <select class="form-control" name="semester" onchange="this.form.submit()" style="width: 100%; height: 38px; border-radius: 8px; font-size: 0.85rem;">
+                                <option value="All">All Semesters</option>
+                                @foreach($semesters as $sem)
+                                    <option value="{{ $sem }}" @selected(request('semester') == $sem)>{{ $sem }} Semester</option>
+                                @endforeach
+                                @if(count($semesters) === 0)
+                                    <option value="First" @selected(request('semester') == 'First')>First Semester</option>
+                                    <option value="Second" @selected(request('semester') == 'Second')>Second Semester</option>
+                                    <option value="Midyear" @selected(request('semester') == 'Midyear')>Midyearster</option>
+                                @endif
+                            </select>
+                        </div>
 
-                    {{-- Year Filter --}}
-                    <div style="width: 140px; min-width: 140px; flex: 0 0 140px;">
-                        <select class="form-control" name="year" onchange="this.form.submit()" style="width: 100%; height: 38px; border-radius: 8px; font-size: 0.85rem;">
-                            <option value="All">All Years</option>
-                            <option value="1" @selected(request('year') == '1')>1st Year</option>
-                            <option value="2" @selected(request('year') == '2')>2nd Year</option>
-                            <option value="3" @selected(request('year') == '3')>3rd Year</option>
-                            <option value="4" @selected(request('year') == '4')>4th Year</option>
-                        </select>
+                        {{-- Year Filter --}}
+                        <div class="filter-item" style="flex: 0 0 140px; min-width: 0; width: 140px;">
+                            <select class="form-control" name="year" onchange="this.form.submit()" style="width: 100%; height: 38px; border-radius: 8px; font-size: 0.85rem;">
+                                <option value="All">All Years</option>
+                                <option value="1" @selected(request('year') == '1')>1st Year</option>
+                                <option value="2" @selected(request('year') == '2')>2nd Year</option>
+                                <option value="3" @selected(request('year') == '3')>3rd Year</option>
+                                <option value="4" @selected(request('year') == '4')>4th Year</option>
+                            </select>
+                        </div>
                     </div>
 
                     {{-- Action buttons --}}
@@ -293,8 +301,8 @@
                                     <span style="font-weight: 600; color: var(--text-main);">{{ $c->academic_year }}</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
-                                    <span style="color: var(--text-muted);">Year & Block</span>
-                                    <span style="font-weight: 600; color: var(--text-main);">Year {{ $c->year }} - {{ $c->block }}</span>
+                                    <span style="color: var(--text-muted);">Program Year & Block</span>
+                                    <span style="font-weight: 600; color: var(--text-main);">{{ $c->course }} - {{ $c->year }}{{ $c->block }}</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
                                     <span style="color: var(--text-muted);">Created</span>
@@ -318,13 +326,6 @@
                                 <div style="font-size: 0.72rem; color: var(--text-muted); text-align: right; margin-top: 0.25rem;">{{ $pct }}% capacity</div>
                             </div>
 
-                            {{-- Instructors list --}}
-                            <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <span style="font-size: 0.8rem; color: var(--text-muted);">Instructors (1):</span>
-                                <div style="width: 26px; height: 26px; border-radius: 50%; background: #8b5cf6; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;">
-                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                                </div>
-                            </div>
                         </div>
 
                         {{-- Card Footer Buttons --}}
@@ -382,6 +383,27 @@
 
                             <div class="form-row" style="margin-top: 0.5rem;">
                                 <div class="form-group">
+                                    <label class="form-label" for="course_{{ $c->id }}">Program *</label>
+                                    <select class="form-control" id="course_{{ $c->id }}" name="course" required>
+                                        <option value="">Select Program</option>
+                                        <option value="BSIT" @selected(old('course', $c->course) == 'BSIT')>BSIT</option>
+                                        <option value="BSEMC" @selected(old('course', $c->course) == 'BSEMC')>BSEMC</option>
+                                        <option value="BSCS" @selected(old('course', $c->course) == 'BSCS')>BSCS</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="block_{{ $c->id }}">Block *</label>
+                                    <select class="form-control" id="block_{{ $c->id }}" name="block" required>
+                                        @foreach(range('A','J') as $letter)
+                                            <option value="{{ $letter }}" @selected(old('block', $c->block) === $letter)>{{ $letter }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row" style="margin-top: 0.5rem;">
+                                <div class="form-group">
                                     <label class="form-label" for="year_{{ $c->id }}">Year *</label>
                                     <select class="form-control" id="year_{{ $c->id }}" name="year" required>
                                         <option value="1" @selected(old('year', $c->year) == '1')>1st Year</option>
@@ -392,17 +414,6 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label" for="block_{{ $c->id }}">Block *</label>
-                                    <select class="form-control" id="block_{{ $c->id }}" name="block" required>
-                                        @foreach(range('A','Z') as $letter)
-                                            <option value="{{ $letter }}" @selected(old('block', $c->block) === $letter)>{{ $letter }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-row" style="margin-top: 0.5rem;">
-                                <div class="form-group">
                                     <label class="form-label" for="semester_{{ $c->id }}">Semester *</label>
                                     <select class="form-control" id="semester_{{ $c->id }}" name="semester" required>
                                         <option value="First" @selected(old('semester', $c->semester) == 'First')>First Semester</option>
@@ -410,16 +421,13 @@
                                         <option value="Midyear" @selected(old('semester', $c->semester) == 'Midyear')>Midyearster</option>
                                     </select>
                                 </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="academic_year_{{ $c->id }}">Academic Year *</label>
-                                    <input class="form-control" id="academic_year_{{ $c->id }}" name="academic_year" value="{{ old('academic_year', $c->academic_year) }}" placeholder="e.g. 2025-2026" required maxlength="20">
-                                </div>
                             </div>
 
-                            <div class="form-group" style="margin-top: 0.5rem;">
-                                <label class="form-label" for="capacity_{{ $c->id }}">Max Capacity *</label>
-                                <input type="number" class="form-control" id="capacity_{{ $c->id }}" name="capacity" value="{{ old('capacity', $c->capacity) }}" min="1" max="500" required>
+                            <div class="form-row" style="margin-top: 0.5rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="capacity_{{ $c->id }}">Max Capacity *</label>
+                                    <input type="number" class="form-control" id="capacity_{{ $c->id }}" name="capacity" value="{{ old('capacity', $c->capacity) }}" min="1" max="500" required>
+                                </div>
                             </div>
 
                             <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem; justify-content: flex-end; align-items: center;">
@@ -505,6 +513,28 @@
 
                 <div class="form-row" style="margin-top: 0.5rem;">
                     <div class="form-group">
+                        <label class="form-label" for="course">Program *</label>
+                        <select class="form-control" id="course" name="course" required>
+                            <option value="">Select Program</option>
+                            <option value="BSIT" @selected(old('course') == 'BSIT')>BSIT</option>
+                            <option value="BSEMC" @selected(old('course') == 'BSEMC')>BSEMC</option>
+                            <option value="BSCS" @selected(old('course') == 'BSCS')>BSCS</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="block">Block *</label>
+                        <select class="form-control" id="block" name="block" required>
+                            <option value="">Select Block</option>
+                            @foreach(range('A','J') as $letter)
+                                <option value="{{ $letter }}" @selected(old('block') === $letter)>{{ $letter }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-top: 0.5rem;">
+                    <div class="form-group">
                         <label class="form-label" for="year">Year *</label>
                         <select class="form-control" id="year" name="year" required>
                             <option value="">Select Year</option>
@@ -516,18 +546,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="block">Block *</label>
-                        <select class="form-control" id="block" name="block" required>
-                            <option value="">Select Block</option>
-                            @foreach(range('A','Z') as $letter)
-                                <option value="{{ $letter }}" @selected(old('block') === $letter)>{{ $letter }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-row" style="margin-top: 0.5rem;">
-                    <div class="form-group">
                         <label class="form-label" for="semester">Semester *</label>
                         <select class="form-control" id="semester" name="semester" required>
                             <option value="First" @selected(old('semester') == 'First')>First Semester</option>
@@ -535,16 +553,13 @@
                             <option value="Midyear" @selected(old('semester') == 'Midyear')>Midyearster</option>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="academic_year">Academic Year *</label>
-                        <input class="form-control" id="academic_year" name="academic_year" value="{{ old('academic_year', '2025-2026') }}" placeholder="e.g. 2025-2026" required maxlength="20">
-                    </div>
                 </div>
 
-                <div class="form-group" style="margin-top: 0.5rem;">
-                    <label class="form-label" for="capacity">Max Capacity *</label>
-                    <input type="number" class="form-control" id="capacity" name="capacity" value="{{ old('capacity', 40) }}" min="1" max="500" required>
+                <div class="form-row" style="margin-top: 0.5rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="capacity">Max Capacity *</label>
+                        <input type="number" class="form-control" id="capacity" name="capacity" value="{{ old('capacity', 40) }}" min="1" max="500" required>
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem; justify-content: flex-end; align-items: center;">

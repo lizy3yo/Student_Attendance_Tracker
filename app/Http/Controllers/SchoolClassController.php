@@ -91,8 +91,10 @@ class SchoolClassController extends Controller
             'year' => ['required', 'in:1,2,3,4'],
             'block' => ['required', 'regex:/^[A-Z]$/'],
             'semester' => ['required', 'string', 'max:20'],
-            'academic_year' => ['required', 'string', 'max:20'],
             'capacity' => ['required', 'integer', 'min:1', 'max:500'],
+            'course' => ['required', 'string', 'max:10'],
+        ], [], [
+            'course' => 'program',
         ]);
 
         SchoolClass::create([
@@ -102,8 +104,8 @@ class SchoolClassController extends Controller
             'year' => (int) $data['year'],
             'block' => strtoupper($data['block']),
             'semester' => $data['semester'],
-            'academic_year' => $data['academic_year'],
             'capacity' => (int) $data['capacity'],
+            'course' => $data['course'],
         ]);
 
         return redirect()->route('classes.index')->with('success', 'Class created successfully.');
@@ -128,8 +130,10 @@ class SchoolClassController extends Controller
             'year' => ['required', 'in:1,2,3,4'],
             'block' => ['required', 'regex:/^[A-Z]$/'],
             'semester' => ['required', 'string', 'max:20'],
-            'academic_year' => ['required', 'string', 'max:20'],
             'capacity' => ['required', 'integer', 'min:1', 'max:500'],
+            'course' => ['required', 'string', 'max:10'],
+        ], [], [
+            'course' => 'program',
         ]);
 
         $class->update([
@@ -138,8 +142,8 @@ class SchoolClassController extends Controller
             'year' => (int) $data['year'],
             'block' => strtoupper($data['block']),
             'semester' => $data['semester'],
-            'academic_year' => $data['academic_year'],
             'capacity' => (int) $data['capacity'],
+            'course' => $data['course'],
         ]);
 
         return redirect()->route('classes.index')->with('success', 'Class updated successfully.');
@@ -183,6 +187,10 @@ class SchoolClassController extends Controller
 
         $totalEnrolledCount = $class->students()->count();
 
+        // Get earliest attendance date for this class
+        $earliestAttendanceDate = Attendance::where('class_id', $class->id)
+            ->min('date');
+
         $enrolledQuery = $class->students();
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -223,7 +231,8 @@ class SchoolClassController extends Controller
         return view('classes.show', compact(
             'class', 'enrolledStudents', 'availableStudents',
             'tab', 'date', 'totalEnrolledCount',
-            'presentCount', 'lateCount', 'absentCount'
+            'presentCount', 'lateCount', 'absentCount',
+            'earliestAttendanceDate'
         ));
     }
 

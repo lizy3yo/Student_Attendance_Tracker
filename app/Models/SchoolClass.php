@@ -33,6 +33,7 @@ class SchoolClass extends Model
         'semester',
         'academic_year',
         'capacity',
+        'course',
     ];
 
     // Students enrolled in this class

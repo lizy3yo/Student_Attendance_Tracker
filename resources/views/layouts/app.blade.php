@@ -7,6 +7,7 @@
     <title>{{ $title ?? 'Attendly' }} – Student Attendance Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>document.documentElement.classList.add('app-loading');</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         :root {
@@ -25,6 +26,8 @@
             --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        [x-cloak] { display: none !important; }
+        html.app-loading body { opacity: 0; }
         body { 
             font-family: 'Inter', sans-serif; 
             background: var(--bg-body); 
@@ -33,6 +36,7 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            transition: opacity 0.12s ease-out;
         }
 
         /* ── Top Navigation ──────────────────────────────────── */
@@ -1030,6 +1034,18 @@
                 el.style.width = `${pct}%`;
             });
         });
+
+        const revealAppShell = () => {
+            document.documentElement.classList.remove('app-loading');
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', revealAppShell, { once: true });
+        } else {
+            revealAppShell();
+        }
+
+        window.addEventListener('pageshow', revealAppShell);
     </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>

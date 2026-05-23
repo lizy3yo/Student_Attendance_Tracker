@@ -276,7 +276,7 @@
 
             .show-roster-table td:nth-child(2)::before { content: 'ID Number'; }
             .show-roster-table td:nth-child(3)::before { content: 'Student Name'; }
-            .show-roster-table td:nth-child(4)::before { content: 'Course and Block'; }
+            .show-roster-table td:nth-child(4)::before { content: 'Program, Year & Block'; }
             .show-roster-table td:nth-child(5)::before { content: 'Actions'; }
 
             .show-attendance-table td:nth-child(2)::before { content: 'ID Number'; }
@@ -305,6 +305,8 @@
                 justify-content: center;
                 white-space: normal;
                 min-width: 0;
+                font-size: 0.74rem;
+                padding: 0.45rem 0.6rem;
             }
 
             .show-roster-table td:nth-child(1),
@@ -320,7 +322,7 @@
 
             .show-attendance-table td:nth-child(4) .att-radio-group {
                 display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: 1fr;
                 gap: 0.4rem;
                 width: 100%;
             }
@@ -329,10 +331,10 @@
                 flex: none;
                 width: 100%;
                 min-width: 0;
-                justify-content: center;
+                justify-content: flex-start;
                 padding: 0.45rem 0.5rem;
                 font-size: 0.76rem;
-                text-align: center;
+                text-align: left;
             }
 
             .show-attendance-table td:nth-child(4) {
@@ -351,11 +353,13 @@
                 flex-direction: column;
                 align-items: flex-start;
                 min-height: 0;
+                word-break: break-word;
             }
 
             .show-attendance-table td:nth-child(6) input.form-control {
                 height: 36px;
                 font-size: 0.82rem;
+                width: 100%;
             }
 
             .show-attendance-table td:nth-child(6) {
@@ -422,7 +426,11 @@
         @php
             $rosterUrl     = route('classes.show', ['class' => $class->id, 'tab' => 'roster']);
             $attUrl        = route('classes.show', ['class' => $class->id, 'tab' => 'attendance']);
-            $attPresentUrl = route('classes.show', ['class' => $class->id, 'tab' => 'attendance', 'date' => today()->toDateString()]);
+            $attPresentUrl = route('classes.show', ['class' => $class->id, 'tab' => 'attendance', 'date' => today()->toDateString(), 'filter' => 'present']);
+            $attLateUrl    = route('classes.show', ['class' => $class->id, 'tab' => 'attendance', 'date' => today()->toDateString(), 'filter' => 'late']);
+            $attAbsentUrl  = route('classes.show', ['class' => $class->id, 'tab' => 'attendance', 'date' => today()->toDateString(), 'filter' => 'absent']);
+            $allowedStatusFilters = ['all', 'present', 'late', 'absent'];
+            $initialStatusFilter = in_array(request('filter'), $allowedStatusFilters, true) ? request('filter') : 'all';
             $enrollPct     = $class->capacity > 0 ? round(($totalEnrolledCount / $class->capacity) * 100) : 0;
         @endphp
         <div class="show-kpi-grid">
@@ -452,7 +460,7 @@
             </a>
 
             {{-- Late Today → Attendance tab --}}
-            <a href="{{ $attPresentUrl }}" class="show-kpi-card">
+            <a href="{{ $attLateUrl }}" class="show-kpi-card">
                 <div>
                     <div class="show-kpi-label">Late Today</div>
                     <div class="show-kpi-value" style="color: #b45309;">{{ $lateCount }}</div>
@@ -464,7 +472,7 @@
             </a>
 
             {{-- Absent Today → Attendance tab --}}
-            <a href="{{ $attPresentUrl }}" class="show-kpi-card">
+            <a href="{{ $attAbsentUrl }}" class="show-kpi-card">
                 <div>
                     <div class="show-kpi-label">Absent Today</div>
                     <div class="show-kpi-value" style="color: #b91c1c;">{{ $absentCount }}</div>
@@ -628,7 +636,7 @@
                                                     </th>
                                                     <th style="padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); text-align: left;">ID Number</th>
                                                     <th style="padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); text-align: left;">Student Name</th>
-                                                    <th style="padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); text-align: left;">Course and Block</th>
+                                                    <th style="padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); text-align: left;">Program, Year & Block</th>
                                                     <th style="padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); text-align: right;">Actions</th>
                                                 </tr>
                                             </thead>
@@ -643,7 +651,7 @@
                                                         <td style="padding: 0.85rem 1rem; font-size: 0.85rem; font-weight: 500; color: var(--text-main);">
                                                             {{ $student->full_name }}
                                                         </td>
-                                                        <td style="padding: 0.85rem 1rem; font-size: 0.85rem; color: var(--text-muted);">{{ $student->section }}</td>
+                                                        <td style="padding: 0.85rem 1rem; font-size: 0.85rem; color: var(--text-muted);">{{ $student->year ? str_replace(' - ', $student->year, $student->section) : $student->section }}</td>
                                                         <td style="padding: 0.85rem 1rem; text-align: right; vertical-align: middle;">
                                                             <button type="button" class="btn btn-secondary btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2); font-weight: 500; padding: 0.35rem 0.65rem;"
                                                                     @click="triggerRemove('{{ addslashes($student->full_name) }}', '{{ route('classes.unenroll', ['class' => $class->id, 'student' => $student->id]) }}')">
@@ -978,7 +986,7 @@
                     @endforeach
                 },
                 searchQuery: '',
-                statusFilter: 'all',
+                statusFilter: @js($initialStatusFilter),
                 isToday: @js($date === today()->toDateString()),
                 showBulkModal: false,
                 pendingBulkStatus: '',
@@ -1083,11 +1091,17 @@
                             @if(request('tab') === 'attendance' && request('search'))
                                 <input type="hidden" name="search" value="{{ request('search') }}">
                             @endif
+                            @if(request('tab') === 'attendance' && request('filter'))
+                                <input type="hidden" name="filter" value="{{ request('filter') }}">
+                            @endif
                             <span x-show="!isToday" style="background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; padding: 0.35rem 0.65rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
                                 <i data-lucide="eye" data-size="14"></i> Read Only
                             </span>
                             <label class="form-label" for="att_date" style="margin: 0; font-weight: 600; text-transform: uppercase; font-size: 0.72rem; color: var(--text-muted);">Date:</label>
-                            <input type="date" id="att_date" name="date" class="form-control" value="{{ $date }}" onchange="this.form.submit()" style="width: auto; height: 38px; border-radius: 8px;">
+                            <input type="date" id="att_date" name="date" class="form-control" value="{{ $date }}" 
+                                   min="{{ $earliestAttendanceDate ?? '' }}" 
+                                   max="{{ today()->toDateString() }}"
+                                   onchange="this.form.submit()" style="width: auto; height: 38px; border-radius: 8px;">
                         </form>
                     </div>
                 </div>

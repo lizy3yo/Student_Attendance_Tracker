@@ -15,6 +15,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/class-students', [DashboardController::class, 'getClassStudents'])->name('dashboard.class-students');
 
     // Students (CRUD)
     Route::resource('students', StudentController::class)->except(['show']);

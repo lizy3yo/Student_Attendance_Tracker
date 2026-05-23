@@ -32,12 +32,25 @@ class Student extends Model
         'section',
         'email',
         'user_id',
+        'year',
+        'course',
+        'block',
     ];
 
     // Full name accessor
     public function getFullNameAttribute(): string
     {
-        return "{$this->last_name}, {$this->first_name}";
+        $lastName = $this->last_name;
+        $suffixes = ['Jr', 'Sr', 'II', 'III', 'IV'];
+        $suffix = '';
+        foreach ($suffixes as $s) {
+            if (str_ends_with($lastName, ' ' . $s)) {
+                $suffix = $s;
+                $lastName = trim(substr($lastName, 0, -strlen(' ' . $s)));
+                break;
+            }
+        }
+        return "{$lastName}, {$this->first_name}" . ($suffix ? ', ' . $suffix : '');
     }
 
     // Teacher who manages this student

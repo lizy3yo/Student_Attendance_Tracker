@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
     private const STUDENT_EMAIL_DOMAIN = 'gordoncollege.edu.ph';
+    private const ALLOWED_COURSES = ['BSIT', 'BSEMC', 'BSCS'];
 
     public function index(Request $request)
     {
@@ -69,19 +71,32 @@ class StudentController extends Controller
             'student_id_number' => ['required', 'string', 'max:30', 'unique:students,student_id_number'],
             'first_name'        => ['required', 'string', 'max:100'],
             'last_name'         => ['required', 'string', 'max:100'],
+            'course'            => ['required_without:section', Rule::in(self::ALLOWED_COURSES)],
+            'block'             => ['required_without:section', Rule::in(range('A', 'J'))],
             'section'           => ['nullable', 'string', 'max:50'],
+            'year'              => ['required', 'string', 'max:10'],
             'email'             => ['nullable', 'email', 'max:150', 'ends_with:@' . self::STUDENT_EMAIL_DOMAIN],
         ], [], [
-            'section' => 'course and block',
+            'course' => 'program',
+            'block' => 'block',
+            'section' => 'program and block',
+            'year' => 'year',
         ]);
 
         $data['user_id'] = Auth::id();
+
+        if (empty($data['section']) && !empty($data['course']) && !empty($data['block'])) {
+            $data['section'] = $data['course'] . ' - ' . strtoupper($data['block']);
+        }
+
         if (empty($data['section'])) {
             $data['section'] = 'N/A';
         }
+
         if (empty($data['email'])) {
             $data['email'] = $data['student_id_number'] . '@' . self::STUDENT_EMAIL_DOMAIN;
         }
+        
         Student::create($data);
 
         return redirect()->route('students.index')
@@ -119,23 +134,30 @@ class StudentController extends Controller
             'student_id_number' => ['required', 'string', 'max:30', "unique:students,student_id_number,{$student->id}"],
             'first_name'        => ['required', 'string', 'max:100'],
             'last_name'         => ['required', 'string', 'max:100'],
+            'course'            => ['required_without:section', Rule::in(self::ALLOWED_COURSES)],
+            'block'             => ['required_without:section', Rule::in(range('A', 'J'))],
             'section'           => ['nullable', 'string', 'max:50'],
+            'year'              => ['required', 'string', 'max:10'],
             'email'             => ['nullable', 'email', 'max:150', 'ends_with:@' . self::STUDENT_EMAIL_DOMAIN],
         ], [], [
-            'section' => 'course and block',
+            'course' => 'program',
+            'block' => 'block',
+            'section' => 'program and block',
+            'year' => 'year',
         ]);
 
-        if ($request->has('section')) {
-            if (empty($data['section'])) {
-                $data['section'] = 'N/A';
-            }
-        } else {
-            unset($data['section']);
+        if (empty($data['section']) && !empty($data['course']) && !empty($data['block'])) {
+            $data['section'] = $data['course'] . ' - ' . strtoupper($data['block']);
+        }
+
+        if (empty($data['section'])) {
+            $data['section'] = 'N/A';
         }
 
         if (empty($data['email'])) {
             $data['email'] = $data['student_id_number'] . '@' . self::STUDENT_EMAIL_DOMAIN;
         }
+        
         $student->update($data);
 
         return redirect()->route('students.index')

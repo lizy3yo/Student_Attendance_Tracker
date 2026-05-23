@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="title">Overview</x-slot>
 
-    <div class="page-content dashboard-page">
+    <div class="page-content dashboard-page" x-data="dashboardData()" x-init="initDashboard()">
         {{-- Dashboard Header --}}
         <div class="hero-header">
             <div class="hero-content">
@@ -39,6 +39,98 @@
             --fs-chart-axis: clamp(0.8125rem, 1.5vw, 0.875rem);
             position: relative;
             isolation: isolate;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .dashboard-page.loaded {
+            opacity: 1;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 70px 0 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #22c55e;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Skeleton Loading States */
+        .skeleton {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+        }
+
+        .skeleton-number {
+            height: 1.75rem;
+            width: 60px;
+        }
+
+        /* Smooth Transitions */
+        .modern-card,
+        .modern-stat-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .modern-card:hover,
+        .modern-stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number,
+        .attendant-name,
+        .attendant-days {
+            transition: color 0.2s ease-in-out;
+        }
+
+        /* Chart Animation */
+        .chart-bar {
+            transition: height 0.5s ease-in-out, background-color 0.3s ease-in-out;
+        }
+
+        .chart-line-inner svg path,
+        .chart-line-inner svg circle {
+            transition: d 0.5s ease-in-out, cx 0.5s ease-in-out, cy 0.5s ease-in-out;
         }
 
         .dashboard-page::before {
@@ -98,6 +190,49 @@
             height: 12rem;
             background: radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 72%);
         }
+
+        .bulk-modal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        [x-cloak] { display: none !important; }
+
+        /* Segmented Control Styles */
+        .segmented-btn {
+            padding: 0.35rem 0.75rem !important;
+            font-size: 0.8rem !important;
+            font-weight: 600 !important;
+            border-radius: 9999px !important;
+            border: none !important;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            outline: none !important;
+        }
+        .segmented-badge {
+            font-size: 0.7rem !important;
+            padding: 0.05rem 0.35rem !important;
+            border-radius: 9999px !important;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.25rem;
+            height: 1.25rem;
+        }
+
         .hero-content {
             max-width: 1400px;
             margin-left: auto;
@@ -292,7 +427,7 @@
 
         .dashboard-grid-bottom {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: var(--dash-gap);
         }
 
@@ -360,6 +495,20 @@
         .attendance-range-select:focus {
             border-color: #22c55e;
             box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f1f5f9;
+            border-top: 3px solid #22c55e;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Charts & Lists */
@@ -541,11 +690,8 @@
             .dashboard-grid-bottom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .hero-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .hero-content { flex-direction: column; align-items: stretch; }
-            .dashboard-grid-bottom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .hero-summary { width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; }
+            .hero-summary { width: 100%; min-width: 0; }
             .dashboard-grid { grid-template-columns: 1fr; }
-            .dashboard-grid-bottom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .stat-grid-modern { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .modern-stat-card { padding: 0.75rem; padding-right: 1.75rem; min-height: 4.75rem; }
             .stat-icon-circle { width: 40px; height: 40px; min-width: 40px; }
             .stat-number { font-size: 1.375rem; }
@@ -607,6 +753,11 @@
         }
     </style>
 
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" :class="{ 'hidden': !loading }" x-show="loading" x-transition.opacity.duration.300ms>
+        <div class="loading-spinner"></div>
+    </div>
+
     <div class="stat-grid-modern">
         <div class="modern-stat-card">
             <div class="stat-card-main">
@@ -614,7 +765,7 @@
                     <i data-lucide="graduation-cap" data-size="24"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number">{{ sprintf('%02d', $totalStudents) }}</div>
+                    <div class="stat-number" x-text="stats.totalStudents">{{ sprintf('%02d', $totalStudents) }}</div>
                     <div class="stat-label">Total Students</div>
                 </div>
             </div>
@@ -626,7 +777,7 @@
                     <i data-lucide="arrow-right" data-size="22"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number">{{ sprintf('%02d', $presentToday) }}</div>
+                    <div class="stat-number" x-text="stats.presentToday">{{ sprintf('%02d', $presentToday) }}</div>
                     <div class="stat-label">Present Today</div>
                 </div>
             </div>
@@ -638,7 +789,7 @@
                     <i data-lucide="frown" data-size="22"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number">{{ sprintf('%02d', $absentToday) }}</div>
+                    <div class="stat-number" x-text="stats.absentToday">{{ sprintf('%02d', $absentToday) }}</div>
                     <div class="stat-label">Absent Today</div>
                     <!-- details link intentionally removed -->
                 </div>
@@ -651,7 +802,7 @@
                     <i data-lucide="clock" data-size="22"></i>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-number">{{ sprintf('%02d', $lateToday) }}</div>
+                    <div class="stat-number" x-text="stats.lateToday">{{ sprintf('%02d', $lateToday) }}</div>
                     <div class="stat-label">Late Students Today</div>
                 </div>
             </div>
@@ -662,14 +813,13 @@
         <div class="modern-card">
             <div class="modern-card-header">
                 <h2 class="modern-card-title">Total Attendance Report</h2>
-                <form method="GET" action="{{ url()->current() }}" class="attendance-range-form">
+                <div class="attendance-range-form">
                     <label for="timeframe" class="sr-only">Select time frame</label>
-                    <select id="timeframe" name="timeframe" class="attendance-range-select" onchange="this.form.submit()">
-                        <option value="days" @selected(request('timeframe', $timeframe ?? 'days') === 'days')>Last 7 days</option>
-                        <option value="week" @selected(request('timeframe', $timeframe ?? 'days') === 'week')>Per week</option>
-                        <option value="month" @selected(request('timeframe', $timeframe ?? 'days') === 'month')>Per month</option>
+                    <select id="timeframe" name="timeframe" class="attendance-range-select" x-model="timeframe" @change="updateTimeframe()">
+                        <option value="days">Last 7 days</option>
+                        <option value="month">Per month</option>
                     </select>
-                </form>
+                </div>
             </div>
             <!-- Attendance trend for the selected time frame -->
             <div class="chart-placeholder-svg chart-line-wrap">
@@ -683,21 +833,21 @@
                         $paddingX = 36;
                         $paddingTop = 18;
                         $paddingBottom = 34;
-                        $plotWidth = $viewWidth - ($paddingX * 2);
+                        $plotWidth = $viewWidth - $paddingX * 2;
                         $plotHeight = $viewHeight - $paddingTop - $paddingBottom;
-                        $trendMax = max(1, (int) ($trendSeries->max('total') ?? 0));
-                        $trendMin = (int) ($trendSeries->min('total') ?? 0);
+                        $trendMax = max(1, (int) $trendSeries->max('total') ?? 0);
+                        $trendMin = (int) $trendSeries->min('total') ?? 0;
                         $trendRange = max(1, $trendMax - $trendMin);
                         $trendPoints = [];
 
                         foreach ($trendSeries as $index => $row) {
                             $x = $trendCount > 1
-                                ? $paddingX + ($plotWidth * $index / ($trendCount - 1))
-                                : $paddingX + ($plotWidth / 2);
+                                ? $paddingX + $plotWidth * $index / ($trendCount - 1)
+                                : $paddingX + $plotWidth / 2;
 
                             $value = (int) ($row['total'] ?? 0);
-                            $normalized = $trendRange === 0 ? 0.5 : (($value - $trendMin) / $trendRange);
-                            $y = $paddingTop + ($plotHeight * (1 - $normalized));
+                            $normalized = $trendRange === 0 ? 0.5 : ($value - $trendMin) / $trendRange;
+                            $y = $paddingTop + $plotHeight * (1 - $normalized);
 
                             $trendPoints[] = [
                                 'x' => $x,
@@ -711,12 +861,12 @@
                         $trendAreaPath = '';
                         $highlightPoint = null;
                         if (! empty($trendPoints)) {
-                            $trendLinePath = 'M ' . $trendPoints[0]['x'] . ',' . $trendPoints[0]['y'];
+                            $trendLinePath = "M {$trendPoints[0]['x']},{$trendPoints[0]['y']}";
                             foreach (array_slice($trendPoints, 1) as $point) {
-                                $trendLinePath .= ' L ' . $point['x'] . ',' . $point['y'];
+                                $trendLinePath .= " L {$point['x']},{$point['y']}";
                             }
 
-                            $trendAreaPath = $trendLinePath . ' L ' . $trendPoints[array_key_last($trendPoints)]['x'] . ',' . $viewHeight . ' L ' . $trendPoints[0]['x'] . ',' . $viewHeight . ' Z';
+                            $trendAreaPath = "{$trendLinePath} L {$trendPoints[array_key_last($trendPoints)]['x']},{$viewHeight} L {$trendPoints[0]['x']},{$viewHeight} Z";
                             $highlightIndex = $trendSeries->search(fn ($row) => (int) ($row['total'] ?? 0) === (int) $trendSeries->max('total'));
                             $highlightPoint = $highlightIndex !== false ? $trendPoints[$highlightIndex] : null;
 
@@ -724,7 +874,7 @@
                                 $labelWidth = 72;
                                 $labelHeight = 28;
                                 $tooltipGap = 12;
-                                $tooltipX = max(8, min($viewWidth - $labelWidth - 8, $highlightPoint['x'] - ($labelWidth / 2)));
+                                $tooltipX = max(8, min($viewWidth - $labelWidth - 8, $highlightPoint['x'] - $labelWidth / 2));
                                 $tooltipY = max(8, $highlightPoint['y'] - $labelHeight - $tooltipGap);
                                 $highlightPoint['tooltipX'] = $tooltipX;
                                 $highlightPoint['tooltipY'] = $tooltipY;
@@ -796,9 +946,9 @@
             </div>
 
             @if(($recentLogs ?? collect())->isEmpty())
-                <div class="empty-state" style="padding:2rem 1.25rem;">
-                    <div class="icon" aria-hidden="true">
-                        <i data-lucide="file-text" data-size="34"></i>
+                <div class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; text-align: center;">
+                    <div class="icon" aria-hidden="true" style="margin-bottom: 1rem;">
+                        <i data-lucide="file-text" data-size="64"></i>
                     </div>
                     <h3>No recent attendance yet</h3>
                     <p>Once you start marking attendance, activity will show up here.</p>
@@ -837,15 +987,15 @@
     <div class="dashboard-grid-bottom">
         <div class="modern-card">
             <div class="modern-card-header">
-                <h2 class="modern-card-title">Course and Block Overview</h2>
+                <h2 class="modern-card-title">Class Overview</h2>
             </div>
             @if(($sectionCounts ?? collect())->isEmpty())
-                <div class="empty-state" style="padding:2rem 1.25rem;">
-                    <div class="icon" aria-hidden="true">
-                        <i data-lucide="tag" data-size="34"></i>
+                <div class="empty-state" style="padding:2rem 1.25rem; text-align: center;">
+                    <div class="icon" aria-hidden="true" style="display: flex; justify-content: center; margin-bottom: 1rem;">
+                        <i data-lucide="tag" data-size="48"></i>
                     </div>
-                    <h3>No students yet</h3>
-                    <p>Add students to see course and block breakdown.</p>
+                    <h3>No classes yet</h3>
+                    <p>Add students with course and block to see class breakdown.</p>
                 </div>
             @else
                 <ul class="attendant-list">
@@ -857,10 +1007,16 @@
                                 </div>
                                 <div class="attendant-meta">
                                     <span class="attendant-name">{{ $row->section ?? '—' }}</span>
-                                    <span style="font-size:0.8125rem;color:var(--text-muted);">Course & Block</span>
+                                    <span style="font-size:0.8125rem;color:var(--text-muted);">{{ $row->classcode ?? '—' }}</span>
                                 </div>
                             </div>
-                            <div class="attendant-right attendant-days">{{ $row->total }} <span>students</span></div>
+                            <div class="attendant-right" style="display:flex;align-items:center;gap:0.5rem;">
+                                <span class="attendant-days">{{ $row->total }} <span>students</span></span>
+                                <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 6px; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem; height: 32px; padding: 0.25rem 0.65rem;" x-on:click="openClassModal(@js($row->section))">
+                                    <i data-lucide="users" data-size="14"></i>
+                                    View
+                                </button>
+                            </div>
                         </li>
                     @endforeach
                 </ul>
@@ -872,9 +1028,9 @@
                 <h2 class="modern-card-title">Top attendants</h2>
             </div>
             @if(($topAttendants ?? collect())->isEmpty())
-                <div class="empty-state" style="padding:2rem 1.25rem;">
-                    <div class="icon" aria-hidden="true">
-                        <i data-lucide="award" data-size="34"></i>
+                <div class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; text-align: center;">
+                    <div class="icon" aria-hidden="true" style="margin-bottom: 1rem;">
+                        <i data-lucide="award" data-size="64"></i>
                     </div>
                     <h3>No attendance records yet</h3>
                     <p>Mark attendance to calculate top attendants.</p>
@@ -898,39 +1054,310 @@
                 </ul>
             @endif
         </div>
+    </div>
+
+    <!-- Class Students Modal -->
+    <div x-show="classModal.show" 
+         class="bulk-modal-container"
+         x-cloak
+         x-on:keydown.escape.window="classModal.show = false"
+         style="display: none;">
+        <!-- Backdrop -->
+        <div x-show="classModal.show"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="classModal.show = false"
+             style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.3s ease; z-index: 9999;"></div>
         
-        <div class="modern-card">
-            <div class="modern-card-header">
-                <h2 class="modern-card-title">Weekly Absent</h2>
-            </div>
-            @if(empty($weeklyData))
-                <div class="empty-state" style="padding:2rem 1.25rem;">
-                    <div class="icon" aria-hidden="true">
-                        <i data-lucide="calendar" data-size="34"></i>
-                    </div>
-                    <h3>No weekly data</h3>
-                    <p>Mark attendance to populate the weekly summary.</p>
+        <!-- Modal Content -->
+        <div x-show="classModal.show"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             style="position: relative; background: #ffffff; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); overflow: hidden; width: 100%; max-width: 600px; border: 1px solid #e2e8f0; z-index: 10000; box-sizing: border-box;">
+            
+            <!-- Modal Header -->
+            <div style="padding: 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; background: #f8fafc;">
+                <div>
+                    <h3 style="font-size: 1.125rem; font-weight: 700; color: #0f172a; margin: 0; font-family: system-ui, -apple-system, sans-serif;" x-text="classModal.section + ' - Students'"></h3>
+                    <p style="font-size: 0.8125rem; color: #64748b; margin: 0.25rem 0 0 0;">View student attendance status for today</p>
                 </div>
-            @else
-                <ul class="attendant-list">
-                    @foreach($weeklyData as $day)
-                        <li class="attendant-item" style="padding:0.65rem 0;">
-                            <div class="attendant-info">
-                                <div class="attendant-avatar" style="display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#991b1b;font-weight:800;">
-                                    {{ $day['day'] }}
-                                </div>
-                                <div class="attendant-meta">
-                                    <span class="attendant-name">{{ $day['formatted_date'] ?? \Carbon\Carbon::parse($day['date'])->format('M j') }}</span>
-                                    <span style="font-size:0.8125rem;color:var(--text-muted);">Absent</span>
-                                </div>
-                            </div>
-                            <div class="attendant-right attendant-days">{{ (int) $day['absent'] }} <span>students</span></div>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
+                <button type="button" @click="classModal.show = false" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.5rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.color='#64748b';this.style.background='#f1f5f9'" onmouseout="this.style.color='#94a3b8';this.style.background='none'">
+                    <i data-lucide="x" data-size="20"></i>
+                </button>
+            </div>
+            
+            <!-- Filters -->
+            <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; background: #ffffff;">
+                <div style="display: flex; background: #f1f5f9; padding: 0.25rem; border-radius: 9999px; gap: 0.25rem; width: fit-content; border: 1px solid #e2e8f0; margin: 0 auto; align-items: center;">
+                    <button type="button" @click="classModal.filter = 'all'" class="segmented-btn"
+                            :style="classModal.filter === 'all' ? 'background: #ffffff; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);' : 'background: transparent; color: #64748b;'">
+                        All <span class="segmented-badge" :style="classModal.filter === 'all' ? 'background: #f1f5f9; color: #0f172a;' : 'background: #e2e8f0; color: #64748b;'" x-text="counts.all"></span>
+                    </button>
+                    <button type="button" @click="classModal.filter = 'present'" class="segmented-btn"
+                            :style="classModal.filter === 'present' ? 'background: #dcfce7; color: #15803d; box-shadow: 0 1px 2px rgba(34,197,94,0.15);' : 'background: transparent; color: #64748b;'">
+                        Present <span class="segmented-badge" :style="classModal.filter === 'present' ? 'background: #bbf7d0; color: #15803d;' : 'background: #e2e8f0; color: #64748b;'" x-text="counts.present"></span>
+                    </button>
+                    <button type="button" @click="classModal.filter = 'late'" class="segmented-btn"
+                            :style="classModal.filter === 'late' ? 'background: #fef3c7; color: #b45309; box-shadow: 0 1px 2px rgba(245,158,11,0.15);' : 'background: transparent; color: #64748b;'">
+                        Late <span class="segmented-badge" :style="classModal.filter === 'late' ? 'background: #fde68a; color: #b45309;' : 'background: #e2e8f0; color: #64748b;'" x-text="counts.late"></span>
+                    </button>
+                    <button type="button" @click="classModal.filter = 'absent'" class="segmented-btn"
+                            :style="classModal.filter === 'absent' ? 'background: #fee2e2; color: #b91c1c; box-shadow: 0 1px 2px rgba(239,68,68,0.15);' : 'background: transparent; color: #64748b;'">
+                        Absent <span class="segmented-badge" :style="classModal.filter === 'absent' ? 'background: #fecaca; color: #b91c1c;' : 'background: #e2e8f0; color: #64748b;'" x-text="counts.absent"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Student List -->
+            <div style="padding: 0; overflow-y: auto; max-height: 400px; background: #ffffff;">
+                <template x-if="classModal.loading">
+                    <div style="display: flex; align-items: center; justify-content: center; padding: 3rem;">
+                        <div class="loading-spinner" style="border-top-color: #22c55e;"></div>
+                    </div>
+                </template>
+                
+                <template x-if="!classModal.loading && filteredStudents.length === 0">
+                    <div style="text-align: center; padding: 4rem 2rem; color: #94a3b8;">
+                        <div style="background: #f8fafc; color: #cbd5e1; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 2px dashed #e2e8f0;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <h4 style="color: #475569; font-weight: 700; margin: 0 0 0.5rem 0; font-size: 1rem;" x-text="classModal.filter === 'all' ? 'No students enrolled' : 'No ' + classModal.filter + ' students'"></h4>
+                        <p style="font-size: 0.875rem; color: #64748b; margin: 0; font-weight: 500;" x-text="classModal.filter === 'all' ? 'There are no students assigned to this section yet.' : 'There are no students marked as ' + classModal.filter + ' for today in this class.'"></p>
+                    </div>
+                </template>
+                
+                <template x-if="!classModal.loading && filteredStudents.length > 0">
+                    <div style="padding: 0 1.5rem;">
+                        <ul style="list-style: none; padding: 0; margin: 0; border-top: 1px solid #f1f5f9;">
+                            <template x-for="student in filteredStudents" :key="student.id">
+                                <li style="padding: 1rem 0; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; color: #0f172a; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; border: 1px solid #e2e8f0;"
+                                             x-text="student.first_name ? student.first_name.charAt(0).toUpperCase() : 'S'"></div>
+                                        <div>
+                                            <p style="font-weight: 600; color: #0f172a; margin: 0; font-size: 0.9375rem;" x-text="student.first_name + ' ' + student.last_name"></p>
+                                            <p style="font-size: 0.75rem; color: #64748b; margin: 0.125rem 0 0 0; font-family: monospace;" x-text="student.student_id_number"></p>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <template x-if="student.today_status === 'present'">
+                                            <span style="display: inline-flex; align-items: center; gap: 0.375rem; background: #f0fdf4; color: #16a34a; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; border: 1px solid #dcfce7;">
+                                                <span style="width: 6px; height: 6px; background: #16a34a; border-radius: 50%;"></span>
+                                                Present
+                                            </span>
+                                        </template>
+                                        <template x-if="student.today_status === 'absent'">
+                                            <span style="display: inline-flex; align-items: center; gap: 0.375rem; background: #fef2f2; color: #dc2626; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; border: 1px solid #fee2e2;">
+                                                <span style="width: 6px; height: 6px; background: #dc2626; border-radius: 50%;"></span>
+                                                Absent
+                                            </span>
+                                        </template>
+                                        <template x-if="student.today_status === 'late'">
+                                            <span style="display: inline-flex; align-items: center; gap: 0.375rem; background: #fffbeb; color: #ca8a04; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; border: 1px solid #fef3c7;">
+                                                <span style="width: 6px; height: 6px; background: #ca8a04; border-radius: 50%;"></span>
+                                                Late
+                                            </span>
+                                        </template>
+                                        <template x-if="!student.today_status">
+                                            <span style="display: inline-flex; align-items: center; gap: 0.375rem; background: #f8fafc; color: #64748b; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; border: 1px solid #e2e8f0;">
+                                                Not Marked
+                                            </span>
+                                        </template>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div style="padding: 1.25rem 1.5rem; border-top: 1px solid #f1f5f9; background: #f8fafc; display: flex; justify-content: flex-end;">
+                <button type="button" @click="classModal.show = false" class="btn btn-secondary" style="border-radius: 10px; padding: 0.625rem 1.25rem; font-size: 0.875rem; font-weight: 600;">
+                    Close
+                </button>
+            </div>
         </div>
     </div>
-    </div>
+</div>
+
+<div 
+        id="dashboard-data" 
+        style="display: none;"
+        data-timeframe="{{ request('timeframe', $timeframe ?? 'days') }}"
+        data-total-students="{{ $totalStudents }}"
+        data-present-today="{{ $presentToday }}"
+        data-absent-today="{{ $absentToday }}"
+        data-late-today="{{ $lateToday }}"
+        data-dashboard-route="{{ route('dashboard') }}"
+        data-class-students-route="{{ route('dashboard.class-students') }}"
+    ></div>
+
+    <script>
+        function dashboardData() {
+            const dataEl = document.getElementById('dashboard-data');
+            const initialTimeframe = dataEl.dataset.timeframe;
+            const initialTotalStudents = parseInt(dataEl.dataset.totalStudents);
+            const initialPresentToday = parseInt(dataEl.dataset.presentToday);
+            const initialAbsentToday = parseInt(dataEl.dataset.absentToday);
+            const initialLateToday = parseInt(dataEl.dataset.lateToday);
+            const dashboardRoute = dataEl.dataset.dashboardRoute;
+            const classStudentsRoute = dataEl.dataset.classStudentsRoute;
+
+            return {
+                timeframe: initialTimeframe,
+                loading: false,
+                stats: {
+                    totalStudents: initialTotalStudents,
+                    presentToday: initialPresentToday,
+                    absentToday: initialAbsentToday,
+                    lateToday: initialLateToday
+                },
+                classModal: {
+                    show: false,
+                    section: '',
+                    students: [],
+                    filter: 'all',
+                    loading: false
+                },
+                openClassModal(section) {
+                    this.classModal.section = section;
+                    this.classModal.filter = 'all';
+                    this.classModal.loading = true;
+                    this.classModal.show = true;
+                    this.loadClassStudents(section);
+                },
+                async loadClassStudents(section) {
+                    try {
+                        const response = await axios.get(classStudentsRoute, {
+                            params: { section: section },
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        this.classModal.students = response.data.students || [];
+                    } catch (error) {
+                        console.error('Error loading students:', error);
+                        this.classModal.students = [];
+                    } finally {
+                        this.classModal.loading = false;
+                        this.$nextTick(() => {
+                            if (typeof lucide !== 'undefined') {
+                                lucide.createIcons();
+                            }
+                        });
+                    }
+                },
+                get filteredStudents() {
+                    if (this.classModal.filter === 'all') return this.classModal.students;
+                    return this.classModal.students.filter(s => {
+                        if (this.classModal.filter === 'present') return s.today_status === 'present';
+                        if (this.classModal.filter === 'absent') return s.today_status === 'absent';
+                        if (this.classModal.filter === 'late') return s.today_status === 'late';
+                        return true;
+                    });
+                },
+                get counts() {
+                    return {
+                        all: this.classModal.students.length,
+                        present: this.classModal.students.filter(s => s.today_status === 'present').length,
+                        absent: this.classModal.students.filter(s => s.today_status === 'absent').length,
+                        late: this.classModal.students.filter(s => s.today_status === 'late').length,
+                    };
+                },
+                initDashboard() {
+                    // Re-initialize Lucide icons when filters change or loading finishes
+                    this.$watch('classModal.filter', () => {
+                        this.$nextTick(() => {
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        });
+                    });
+                    
+                    this.$watch('classModal.loading', (val) => {
+                        if (!val) {
+                            this.$nextTick(() => {
+                                if (typeof lucide !== 'undefined') lucide.createIcons();
+                            });
+                        }
+                    });
+
+                    // Hide loading overlay and show content after page is ready
+                    this.$nextTick(() => {
+                        setTimeout(() => {
+                            this.loading = false;
+                            document.querySelector('.dashboard-page').classList.add('loaded');
+                        }, 300);
+                    });
+                },
+                async updateTimeframe() {
+                    this.loading = true;
+                    try {
+                        console.log('Updating timeframe to:', this.timeframe);
+                        const response = await axios.get(dashboardRoute, {
+                            params: { timeframe: this.timeframe },
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        
+                        console.log('Response received:', response.data);
+                        console.log('Response status:', response.status);
+                        
+                        if (response.data) {
+                            // Update the chart section with new data
+                            const chartContainer = document.querySelector('.chart-line-inner');
+                            console.log('Chart container found:', !!chartContainer);
+                            console.log('Chart data present:', !!response.data.chart);
+                            
+                            if (chartContainer && response.data.chart) {
+                                chartContainer.innerHTML = response.data.chart;
+                                console.log('Chart updated successfully');
+                            } else {
+                                console.error('Chart container or chart data not found', {
+                                    hasContainer: !!chartContainer,
+                                    hasChartData: !!response.data.chart,
+                                    chartDataLength: response.data.chart ? response.data.chart.length : 0
+                                });
+                            }
+                            
+                            // Update labels
+                            const labelsContainer = document.querySelector('.chart-x-labels--below');
+                            console.log('Labels container found:', !!labelsContainer);
+                            console.log('Labels data present:', !!response.data.labels);
+                            
+                            if (labelsContainer && response.data.labels) {
+                                labelsContainer.innerHTML = response.data.labels;
+                                labelsContainer.style.gridTemplateColumns = `repeat(${response.data.labelCount}, minmax(0, 1fr))`;
+                                console.log('Labels updated successfully');
+                            } else {
+                                console.error('Labels container or labels data not found', {
+                                    hasContainer: !!labelsContainer,
+                                    hasLabelsData: !!response.data.labels,
+                                    labelCount: response.data.labelCount
+                                });
+                            }
+                        } else {
+                            console.error('No response data');
+                        }
+                    } catch (error) {
+                        console.error('Error updating timeframe:', error);
+                        console.error('Error response:', error.response);
+                        console.error('Error status:', error.response?.status);
+                        console.error('Error data:', error.response?.data);
+                        // Fallback to full page reload on error
+                        window.location.href = `{{ route('dashboard') }}?timeframe=${this.timeframe}`;
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            };
+        }
+    </script>
 </x-app-layout>
 
