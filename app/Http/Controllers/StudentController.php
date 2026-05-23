@@ -34,11 +34,27 @@ class StudentController extends Controller
         }
 
         if ($request->filled('section')) {
-            $query->where('section', $request->section);
+            $section = $request->section;
+            // Parse "COURSE - YEARBLOCK" e.g. "BSIT - 3A"
+            if (preg_match('/^(.+) - (\d+)([A-J])$/', $section, $matches)) {
+                $query->where('course', $matches[1])
+                      ->where('year', $matches[2])
+                      ->where('block', $matches[3]);
+            } else {
+                $query->where('section', $section);
+            }
         }
 
         $students = $query->orderBy('last_name')->paginate(15)->withQueryString();
-        $sections = Student::where('user_id', Auth::id())->distinct()->pluck('section')->sort()->values();
+        $sections = Student::where('user_id', Auth::id())
+            ->select('course', 'year', 'block')
+            ->distinct()
+            ->get()
+            ->map(function($student) {
+                return "{$student->course} - {$student->year}{$student->block}";
+            })
+            ->sort()
+            ->values();
 
         return view('students.index', compact('students', 'sections', 'editStudent'));
     }

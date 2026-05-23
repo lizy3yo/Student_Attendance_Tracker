@@ -373,7 +373,7 @@
                                         @endphp
                                         {{ $lastName }}, {{ $student->first_name }}{{ $suffix ? ', ' . $suffix : '' }}
                                     </td>
-                                    <td>{{ $student->year ? str_replace(' - ', $student->year, $student->section) : $student->section }}</td>
+                                    <td>{{ $student->course }} - {{ $student->year }}{{ $student->block }}</td>
                                     <td>{{ $student->email }}</td>
                                     <td style="text-align: right; padding-right: 1.5rem; white-space: nowrap;">
                                         <div style="display: inline-flex; gap: 0.5rem; justify-content: flex-end;">

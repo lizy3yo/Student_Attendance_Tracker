@@ -1043,13 +1043,13 @@
                                     {{ strtoupper(substr($row->section ?? 'S', 0, 1)) }}
                                 </div>
                                 <div class="attendant-meta">
-                                    <span class="attendant-name">{{ $row->section ?? '—' }}</span>
-                                    <span style="font-size:0.8125rem;color:var(--text-muted);">{{ $row->classcode ?? '—' }}</span>
+                                    <span class="attendant-name">{{ $row->display_name ?? $row->section ?? '—' }}</span>
+                                    <span style="font-size:0.8125rem;color:var(--text-muted);">{{ $row->class_subtitle ?? $row->section ?? '—' }}</span>
                                 </div>
                             </div>
                             <div class="attendant-right" style="display:flex;align-items:center;gap:0.5rem;">
                                 <span class="attendant-days">{{ $row->total }} <span>students</span></span>
-                                <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 6px; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem; height: 32px; padding: 0.25rem 0.65rem;" x-on:click="openClassModal(@js($row->section))">
+                                <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 6px; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem; height: 32px; padding: 0.25rem 0.65rem;" x-on:click="openClassModal(@js($row->id), @js($row->display_name), @js($row->class_subtitle))">
                                     <i data-lucide="users" data-size="14"></i>
                                     View
                                 </button>
@@ -1123,8 +1123,8 @@
             <!-- Modal Header -->
             <div style="padding: 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; background: #f8fafc;">
                 <div>
-                    <h3 style="font-size: 1.125rem; font-weight: 700; color: #0f172a; margin: 0; font-family: system-ui, -apple-system, sans-serif;" x-text="classModal.section + ' - Students'"></h3>
-                    <p style="font-size: 0.8125rem; color: #64748b; margin: 0.25rem 0 0 0;">View student attendance status for today</p>
+                    <h3 style="font-size: 1.125rem; font-weight: 700; color: #0f172a; margin: 0; font-family: system-ui, -apple-system, sans-serif;" x-text="classModal.displayName + ' - Students'"></h3>
+                    <p style="font-size: 0.8125rem; color: #64748b; margin: 0.25rem 0 0 0;" x-text="classModal.subtitle"></p>
                 </div>
                 <button type="button" @click="classModal.show = false" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.5rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.color='#64748b';this.style.background='#f1f5f9'" onmouseout="this.style.color='#94a3b8';this.style.background='none'">
                     <i data-lucide="x" data-size="20"></i>
@@ -1260,22 +1260,26 @@
                 },
                 classModal: {
                     show: false,
-                    section: '',
+                    classId: null,
+                    displayName: '',
+                    subtitle: '',
                     students: [],
                     filter: 'all',
                     loading: false
                 },
-                openClassModal(section) {
-                    this.classModal.section = section;
+                openClassModal(classId, displayName, subtitle) {
+                    this.classModal.classId = classId;
+                    this.classModal.displayName = displayName;
+                    this.classModal.subtitle = subtitle || 'View student attendance status for today';
                     this.classModal.filter = 'all';
                     this.classModal.loading = true;
                     this.classModal.show = true;
-                    this.loadClassStudents(section);
+                    this.loadClassStudents(classId);
                 },
-                async loadClassStudents(section) {
+                async loadClassStudents(classId) {
                     try {
                         const response = await axios.get(classStudentsRoute, {
-                            params: { section: section },
+                            params: { class_id: classId },
                             headers: { 'X-Requested-With': 'XMLHttpRequest' }
                         });
                         this.classModal.students = response.data.students || [];

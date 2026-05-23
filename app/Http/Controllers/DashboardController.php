@@ -46,20 +46,20 @@ class DashboardController extends Controller
         // Weekly overview (last 7 days)
         $weeklyData = $this->buildWeeklyData($teacher->id);
 
-        // Students by section (top 8) with classcode
-        $sectionCounts = Student::query()
-            ->where('user_id', $teacher->id)
-            ->where('section', '!=', 'N/A')
-            ->whereNotNull('section')
-            ->select('section', DB::raw('count(*) as total'))
-            ->groupBy('section')
-            ->orderByDesc('total')
+        // Get actual classes owned by the teacher with their student counts
+        $sectionCounts = \App\Models\SchoolClass::where('user_id', $teacher->id)
+            ->withCount('students')
+            ->orderByDesc('students_count')
             ->limit(8)
             ->get()
-            ->map(function ($item) {
-                // Extract classcode from section (e.g., "BSIT - A" -> "BSIT-A")
-                $item->classcode = str_replace(' - ', '-', $item->section);
-                return $item;
+            ->map(function ($class) {
+                return (object)[
+                    'id' => $class->id,
+                    'section' => $class->block, // For backward compatibility in JS if needed
+                    'display_name' => "{$class->course} - {$class->year}{$class->block}",
+                    'class_subtitle' => "{$class->class_code} - {$class->class_name}",
+                    'total' => $class->students_count,
+                ];
             });
 
         // Top attendants over the last N days (students with at least 1 record)
@@ -336,23 +336,31 @@ class DashboardController extends Controller
         return ob_get_clean();
     }
 
-    // Get students by section with today's attendance status
+    // Get students by class ID with today's attendance status
     public function getClassStudents(Request $request)
     {
-        $section = $request->query('section');
+        $classId = $request->query('class_id');
         $teacher = Auth::user();
 
-        if (!$section) {
-            return response()->json(['error' => 'Section is required'], 400);
+        if (!$classId) {
+            return response()->json(['error' => 'Class ID is required'], 400);
         }
 
         $today = Carbon::today()->toDateString();
 
-        $students = Student::where('user_id', $teacher->id)
-            ->where('section', $section)
+        $class = \App\Models\SchoolClass::where('user_id', $teacher->id)
+            ->where('id', $classId)
+            ->first();
+
+        if (!$class) {
+            return response()->json(['error' => 'Class not found'], 404);
+        }
+
+        $students = $class->students()
             ->get()
-            ->map(function ($student) use ($today) {
-                $attendance = Attendance::where('student_id_number', $student->student_id_number)
+            ->map(function ($student) use ($today, $class) {
+                $attendance = Attendance::where('student_id', $student->id)
+                    ->where('class_id', $class->id)
                     ->where('date', $today)
                     ->first();
 

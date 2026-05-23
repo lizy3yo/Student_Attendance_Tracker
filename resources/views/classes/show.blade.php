@@ -528,7 +528,7 @@
     {{-- Subheader / Banner --}}
     <x-app-banner title="{{ $class->class_name }} ({{ $class->class_code }})">
         <x-slot name="subtitle">
-            Year {{ $class->year }} &bull; Block {{ $class->block }} &bull; {{ $class->semester }} Semester &bull; {{ $class->academic_year }}
+            Year {{ $class->year }} &bull; Block {{ $class->block }} &bull; {{ $class->academic_year }}
         </x-slot>
         <x-slot name="actions">
             <a href="{{ route('classes.index') }}" class="btn btn-secondary btn-sm" style="border-radius: 8px;">
@@ -768,7 +768,7 @@
                                                         <td style="padding: 0.85rem 1rem; font-size: 0.85rem; font-weight: 500; color: var(--text-main);">
                                                             {{ $student->full_name }}
                                                         </td>
-                                                        <td style="padding: 0.85rem 1rem; font-size: 0.85rem; color: var(--text-muted);">{{ $student->year ? str_replace(' - ', $student->year, $student->section) : $student->section }}</td>
+                                                        <td style="padding: 0.85rem 1rem; font-size: 0.85rem; color: var(--text-muted);">{{ $student->course }} - {{ $student->year }}{{ $student->block }}</td>
                                                         <td style="padding: 0.85rem 1rem; text-align: right; vertical-align: middle;">
                                                             <button type="button" class="btn btn-secondary btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2); font-weight: 500; padding: 0.35rem 0.65rem;"
                                                                     @click="triggerRemove('{{ addslashes($student->full_name) }}', '{{ route('classes.unenroll', ['class' => $class->id, 'student' => $student->id]) }}')">
@@ -843,7 +843,7 @@
                                                         <td style="padding: 0 0 0 0.5rem; margin: 0; border: none; background: transparent; vertical-align: middle; text-align: left;">
                                                             <label for="available-student-{{ $student->id }}" style="display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; cursor: pointer !important; font-size: 0.85rem !important;">
                                                                 <span style="font-weight: 600; color: var(--text-main); display: block !important; line-height: 1.25 !important; font-family: inherit !important;">{{ $student->full_name }}</span>
-                                                                <span style="font-size: 0.75rem !important; color: var(--text-muted); display: block !important; line-height: 1.25 !important; font-family: inherit !important;">{{ $student->student_id_number }} &bull; {{ $student->section }}</span>
+                                                                <span style="font-size: 0.75rem !important; color: var(--text-muted); display: block !important; line-height: 1.25 !important; font-family: inherit !important;">{{ $student->student_id_number }} &bull; {{ $student->course }} - {{ $student->year }}{{ $student->block }}</span>
                                                             </label>
                                                         </td>
                                                     </tr>
@@ -866,8 +866,8 @@
                             @else
                                 <div style="text-align: center; color: var(--text-muted); padding: 1.5rem 0.5rem;">
                                     <i data-lucide="check-circle-2" data-size="32" style="color: var(--primary); margin-bottom: 0.5rem; display: block; margin-left: auto; margin-right: auto;"></i>
-                                    <div style="font-weight: 600; color: var(--text-main); font-size: 0.9rem; margin-bottom: 0.15rem;">All students assigned</div>
-                                    <p style="font-size: 0.8rem; line-height: 1.4;">There are no other students in your database to enroll. Add them in the "Student's List" tab first.</p>
+                                    <div style="font-weight: 600; color: var(--text-main); font-size: 0.9rem; margin-bottom: 0.15rem;">All matching students assigned</div>
+                                    <p style="font-size: 0.8rem; line-height: 1.4;">There are no other students with matching <strong>Program, Year & Block</strong> ({{ $class->course }} - {{ $class->year }}{{ $class->block }}) to enroll.</p>
                                 </div>
                             @endif
                         </div>

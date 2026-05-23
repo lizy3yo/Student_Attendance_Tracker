@@ -31,10 +31,6 @@ class SchoolClassController extends Controller
             });
         }
 
-        if ($request->filled('semester') && $request->input('semester') !== 'All') {
-            $query->where('semester', $request->input('semester'));
-        }
-
         if ($request->filled('year') && $request->input('year') !== 'All') {
             $query->where('year', $request->input('year'));
         }
@@ -46,13 +42,6 @@ class SchoolClassController extends Controller
         $totalEnrollments = $classes->sum('students_count');
         $avgClassSize = $totalClasses > 0 ? round($totalEnrollments / $totalClasses) : 0;
         $instructorsCount = $totalClasses > 0 ? 1 : 0;
-
-        $semesters = SchoolClass::where('user_id', $teacher->id)
-            ->distinct()
-            ->pluck('semester')
-            ->filter()
-            ->sort()
-            ->values();
 
         $academicYears = SchoolClass::where('user_id', $teacher->id)
             ->distinct()
@@ -67,7 +56,6 @@ class SchoolClassController extends Controller
             'totalStudents',
             'avgClassSize',
             'instructorsCount',
-            'semesters',
             'academicYears'
         ));
     }
@@ -90,7 +78,6 @@ class SchoolClassController extends Controller
             ],
             'year' => ['required', 'in:1,2,3,4'],
             'block' => ['required', 'regex:/^[A-Z]$/'],
-            'semester' => ['required', 'string', 'max:20'],
             'capacity' => ['required', 'integer', 'min:1', 'max:500'],
             'course' => ['required', 'string', 'max:10'],
         ], [], [
@@ -103,7 +90,7 @@ class SchoolClassController extends Controller
             'class_code' => $data['class_code'],
             'year' => (int) $data['year'],
             'block' => strtoupper($data['block']),
-            'semester' => $data['semester'],
+            'semester' => 'N/A',
             'capacity' => (int) $data['capacity'],
             'course' => $data['course'],
         ]);
@@ -129,7 +116,6 @@ class SchoolClassController extends Controller
             ],
             'year' => ['required', 'in:1,2,3,4'],
             'block' => ['required', 'regex:/^[A-Z]$/'],
-            'semester' => ['required', 'string', 'max:20'],
             'capacity' => ['required', 'integer', 'min:1', 'max:500'],
             'course' => ['required', 'string', 'max:10'],
         ], [], [
@@ -141,7 +127,6 @@ class SchoolClassController extends Controller
             'class_code' => $data['class_code'],
             'year' => (int) $data['year'],
             'block' => strtoupper($data['block']),
-            'semester' => $data['semester'],
             'capacity' => (int) $data['capacity'],
             'course' => $data['course'],
         ]);
@@ -208,6 +193,9 @@ class SchoolClassController extends Controller
         $allEnrolledIds = $class->students()->pluck('students.id');
         $availableStudents = Student::where('user_id', Auth::id())
             ->whereNotIn('id', $allEnrolledIds)
+            ->where('course', $class->course)
+            ->where('year', $class->year)
+            ->where('block', $class->block)
             ->orderBy('last_name')
             ->get();
 
@@ -251,10 +239,13 @@ class SchoolClassController extends Controller
 
         $ownedCount = Student::where('user_id', Auth::id())
             ->whereIn('id', $studentIds)
+            ->where('course', $class->course)
+            ->where('year', $class->year)
+            ->where('block', $class->block)
             ->count();
 
         if ($ownedCount !== count($studentIds)) {
-            abort(403, 'Unauthorized student assignment');
+            return redirect()->back()->with('error', 'Only students from the same Program, Year, and Block can be assigned to this class.');
         }
 
         $class->students()->syncWithoutDetaching($studentIds);

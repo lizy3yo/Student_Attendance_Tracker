@@ -335,7 +335,7 @@
                 <div>
                     <div style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted); margin-bottom: 0.25rem;">Instructors</div>
                     <div class="classes-kpi-value">{{ $instructorsCount }}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Teaching this semester</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Active instructors</div>
                 </div>
                 <div style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                     <i data-lucide="user-plus" data-size="22"></i>
@@ -355,7 +355,7 @@
                         <input class="form-control" type="text" name="search" value="{{ request('search') }}"
                                placeholder="Search classes, courses..." style="padding-left: 2.25rem; padding-right: 2.5rem; height: 38px; border-radius: 8px;">
                         @if(request('search'))
-                            <a href="{{ route('classes.index', array_filter(['semester' => request('semester'), 'year' => request('year')])) }}" 
+                            <a href="{{ route('classes.index', array_filter(['year' => request('year')])) }}" 
                                style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;text-decoration:none;transition:background-color 0.2s, color 0.2s;"
                                title="Clear search"
                                onmouseover="this.style.color='var(--text-main)';this.style.background='rgba(0,0,0,0.05)';"
@@ -367,21 +367,6 @@
                     </div>
 
                     <div class="filters-inline" style="display:flex; gap:0.6rem; align-items:center;">
-                        {{-- Semester Filter --}}
-                        <div class="filter-item" style="flex: 0 0 200px; min-width: 0; width: 200px;">
-                            <select class="form-control" name="semester" onchange="this.form.submit()" style="width: 100%; height: 38px; border-radius: 8px; font-size: 0.85rem;">
-                                <option value="All">All Semesters</option>
-                                @foreach($semesters as $sem)
-                                    <option value="{{ $sem }}" @selected(request('semester') == $sem)>{{ $sem }} Semester</option>
-                                @endforeach
-                                @if(count($semesters) === 0)
-                                    <option value="First" @selected(request('semester') == 'First')>First Semester</option>
-                                    <option value="Second" @selected(request('semester') == 'Second')>Second Semester</option>
-                                    <option value="Midyear" @selected(request('semester') == 'Midyear')>Midyearster</option>
-                                @endif
-                            </select>
-                        </div>
-
                         {{-- Year Filter --}}
                         <div class="filter-item" style="flex: 0 0 140px; min-width: 0; width: 140px;">
                             <select class="form-control" name="year" onchange="this.form.submit()" style="width: 100%; height: 38px; border-radius: 8px; font-size: 0.85rem;">
@@ -396,7 +381,7 @@
 
                     {{-- Action buttons --}}
                     <div style="display: flex; gap: 0.5rem; margin-left: auto;">
-                        @if(request()->anyFilled(['search', 'semester', 'year']))
+                        @if(request()->anyFilled(['search', 'year']))
                             <a href="{{ route('classes.index') }}" class="btn btn-secondary btn-sm" style="height: 38px; padding: 0 1rem; border-radius: 8px;">Clear</a>
                         @endif
                         <button
@@ -432,7 +417,6 @@
                                     </div>
                                     <div style="font-size: 0.9rem; font-weight: 500; color: var(--text-muted); margin-top: 0.15rem;">{{ $c->class_name }}</div>
                                 </div>
-                                <span class="badge badge-muted" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-radius: 6px;">{{ $c->semester }}</span>
                             </div>
 
                             {{-- Academic Year and Created Info --}}
@@ -526,24 +510,12 @@
                                 <div class="form-group">
                                     <label class="form-label" for="course_{{ $c->id }}">Program *</label>
                                     <select class="form-control" id="course_{{ $c->id }}" name="course" required>
-                                        <option value="">Select Program</option>
                                         <option value="BSIT" @selected(old('course', $c->course) == 'BSIT')>BSIT</option>
                                         <option value="BSEMC" @selected(old('course', $c->course) == 'BSEMC')>BSEMC</option>
                                         <option value="BSCS" @selected(old('course', $c->course) == 'BSCS')>BSCS</option>
                                     </select>
                                 </div>
 
-                                <div class="form-group">
-                                    <label class="form-label" for="block_{{ $c->id }}">Block *</label>
-                                    <select class="form-control" id="block_{{ $c->id }}" name="block" required>
-                                        @foreach(range('A','J') as $letter)
-                                            <option value="{{ $letter }}" @selected(old('block', $c->block) === $letter)>{{ $letter }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-row" style="margin-top: 0.5rem;">
                                 <div class="form-group">
                                     <label class="form-label" for="year_{{ $c->id }}">Year *</label>
                                     <select class="form-control" id="year_{{ $c->id }}" name="year" required>
@@ -553,18 +525,18 @@
                                         <option value="4" @selected(old('year', $c->year) == '4')>4th Year</option>
                                     </select>
                                 </div>
-
-                                <div class="form-group">
-                                    <label class="form-label" for="semester_{{ $c->id }}">Semester *</label>
-                                    <select class="form-control" id="semester_{{ $c->id }}" name="semester" required>
-                                        <option value="First" @selected(old('semester', $c->semester) == 'First')>First Semester</option>
-                                        <option value="Second" @selected(old('semester', $c->semester) == 'Second')>Second Semester</option>
-                                        <option value="Midyear" @selected(old('semester', $c->semester) == 'Midyear')>Midyearster</option>
-                                    </select>
-                                </div>
                             </div>
 
                             <div class="form-row" style="margin-top: 0.5rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="block_{{ $c->id }}">Block *</label>
+                                    <select class="form-control" id="block_{{ $c->id }}" name="block" required>
+                                        @foreach(range('A','J') as $letter)
+                                            <option value="{{ $letter }}" @selected(old('block', $c->block) === $letter)>{{ $letter }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
                                 <div class="form-group">
                                     <label class="form-label" for="capacity_{{ $c->id }}">Max Capacity *</label>
                                     <input type="number" class="form-control" id="capacity_{{ $c->id }}" name="capacity" value="{{ old('capacity', $c->capacity) }}" min="1" max="500" required>
@@ -664,18 +636,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="block">Block *</label>
-                        <select class="form-control" id="block" name="block" required>
-                            <option value="">Select Block</option>
-                            @foreach(range('A','J') as $letter)
-                                <option value="{{ $letter }}" @selected(old('block') === $letter)>{{ $letter }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-row" style="margin-top: 0.5rem;">
-                    <div class="form-group">
                         <label class="form-label" for="year">Year *</label>
                         <select class="form-control" id="year" name="year" required>
                             <option value="">Select Year</option>
@@ -685,18 +645,19 @@
                             <option value="4" @selected(old('year') == '4')>4th Year</option>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="semester">Semester *</label>
-                        <select class="form-control" id="semester" name="semester" required>
-                            <option value="First" @selected(old('semester') == 'First')>First Semester</option>
-                            <option value="Second" @selected(old('semester', 'Second') == 'Second')>Second Semester</option>
-                            <option value="Midyear" @selected(old('semester') == 'Midyear')>Midyearster</option>
-                        </select>
-                    </div>
                 </div>
 
                 <div class="form-row" style="margin-top: 0.5rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="block">Block *</label>
+                        <select class="form-control" id="block" name="block" required>
+                            <option value="">Select Block</option>
+                            @foreach(range('A','J') as $letter)
+                                <option value="{{ $letter }}" @selected(old('block') === $letter)>{{ $letter }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label" for="capacity">Max Capacity *</label>
                         <input type="number" class="form-control" id="capacity" name="capacity" value="{{ old('capacity', 40) }}" min="1" max="500" required>
