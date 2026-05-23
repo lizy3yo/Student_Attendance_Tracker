@@ -707,49 +707,86 @@
 
         @media (max-width: 768px) {
             .dashboard-page {
-                --hero-overlap: clamp(1.75rem, 5vw, 2.5rem);
-                --hero-tail: clamp(1.5rem, 5vw, 2.5rem);
-                --stat-pad: 0.625rem 0.75rem;
-                --dash-gap: 0.75rem;
-                --card-pad: 0.75rem;
-                --fs-card-title: 0.875rem;
+                --hero-overlap: clamp(1.75rem, 5vw, 2.25rem);
+                --hero-tail: clamp(1.25rem, 5vw, 2.25rem);
+                --stat-pad: 0.5rem 0.625rem;
+                --dash-gap: 0.625rem;
+                --card-pad: 0.625rem;
+                --fs-card-title: 0.8125rem;
             }
-            .hero-content { flex-direction: column; align-items: stretch; }
-            .dashboard-grid-bottom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .hero-summary { width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; }
-            .stat-grid-modern { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
-            .modern-stat-card { padding-right: 1.5rem; min-height: 4.5rem; }
-            .stat-icon-circle { width: 36px; height: 36px; min-width: 36px; font-size: 1.125rem; }
-            .stat-card-main { gap: 0.625rem; }
-            .stat-number { font-size: 1.25rem; }
-            .stat-label { font-size: 0.6rem; }
-            .modern-stat-card .dots { font-size: 0.75rem; top: 0.5rem; right: 0.5rem; }
-            .modern-card { padding: 0.75rem; }
-            .modern-card-header { margin-bottom: 0.875rem; gap: 0.5rem; }
-            .modern-card-title { font-size: 0.875rem; }
-            .attendance-range-form { width: 100%; }
-            .attendance-range-select { width: 100%; min-width: 0; }
-            .card-menu { font-size: 0.7rem; }
-            .chart-line-inner { height: clamp(180px, 50vw, 220px); }
-            .chart-h-scroll-slab { min-width: 480px; }
-            .chart-x-labels { font-size: 0.7rem; gap: 0.25rem 0.375rem; }
-            .chart-x-labels--below { margin-top: 0.5rem; }
+            .hero-header { padding-top: 0.75rem; }
+            .hero-user-info { gap: 0.75rem; }
+            .hero-avatar { width: 40px; height: 40px; min-width: 40px; }
+            .hero-eyebrow { font-size: 0.6rem; margin-bottom: 0.2rem; }
+            .hero-title { font-size: 1.125rem; }
+            .hero-subtitle { font-size: 0.8125rem; }
+            .hero-summary { gap: 0.5rem; }
+            .hero-summary-card { padding: 0.625rem 0.75rem; border-radius: 12px; }
+            .hero-summary-label { font-size: 0.6rem; }
+            .hero-summary-card strong { font-size: 0.875rem; }
+
+            .stat-grid-modern { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; }
+            .modern-stat-card { padding-right: 1.25rem; min-height: 4rem; border-radius: 12px; }
+            .stat-icon-circle { width: 32px; height: 32px; min-width: 32px; font-size: 1rem; }
+            .stat-card-main { gap: 0.5rem; }
+            .stat-number { font-size: 1.125rem; }
+            .stat-label { font-size: 0.55rem; }
+            .modern-stat-card .dots { font-size: 0.7rem; top: 0.375rem; right: 0.375rem; }
+
+            .dashboard-grid-bottom { grid-template-columns: 1fr; }
+            .modern-card { padding: 0.625rem; border-radius: 12px; }
+            .modern-card-header { margin-bottom: 0.75rem; gap: 0.375rem; }
+            .modern-card-title { font-size: 0.8125rem; }
+            .attendance-range-select { padding: 0.45rem 0.65rem; font-size: 0.75rem; }
+            
+            .attendant-item { padding: 0.5rem 0; min-height: 2.75rem; }
+            .attendant-avatar { width: 32px; height: 32px; min-width: 32px; font-size: 0.75rem; }
+            .attendant-name { font-size: 0.8125rem; }
+            .attendant-meta span:last-child { font-size: 0.75rem !important; }
+            .attendant-days { font-size: 0.8125rem; }
+            .attendant-days span { font-size: 0.75rem; }
+            .attendant-right .badge { font-size: 0.65rem; padding: 0.15rem 0.4rem; }
+            .btn-sm { height: 28px !important; padding: 0.2rem 0.5rem !important; font-size: 0.75rem !important; }
+            
+            .chart-line-inner { height: 180px; }
+            .chart-h-scroll-slab { min-width: 450px; }
+            .chart-x-labels { font-size: 0.65rem; }
         }
 
         @media (max-width: 480px) {
-            .modern-card { padding: 0.625rem; }
-            .dashboard-grid-bottom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .stat-grid-modern { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .modern-card-header { margin-bottom: 0.75rem; }
-            .modern-card-title { font-size: 0.8125rem; }
-            .attendance-range-form { width: 100%; }
-            .attendance-range-select { width: 100%; min-width: 0; }
-            .card-menu { font-size: 0.65rem; }
-            .chart-line-inner { height: clamp(150px, 45vw, 200px); }
-            .chart-h-scroll-slab { min-width: 420px; }
-            .chart-x-labels { font-size: 0.625rem; }
-            .attendant-meta .attendant-name { font-size: 0.8125rem; }
-            .hero-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .dashboard-page { --page-inline-pad: 0.75rem; }
+            .hero-header { padding-bottom: calc(var(--hero-overlap) + 1.5rem); }
+            .hero-subtitle { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+            .hero-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+            .hero-summary-card { padding: 0.5rem 0.625rem; }
+            .hero-summary-card strong { font-size: 0.8125rem; }
+            .hero-summary-label { font-size: 0.55rem; }
+            .stat-grid-modern { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+            .modern-stat-card { 
+                padding: 0.75rem 0.5rem !important; 
+                min-height: 5.5rem; 
+                flex-direction: column; 
+                align-items: center; 
+                text-align: center;
+                justify-content: center;
+            }
+            .stat-card-main { 
+                flex-direction: column; 
+                gap: 0.35rem; 
+                align-items: center;
+            }
+            .stat-icon-circle { width: 28px; height: 28px; min-width: 28px; font-size: 0.875rem; }
+            .stat-icon-circle i { width: 16px !important; height: 16px !important; }
+            .stat-number { font-size: 1rem; }
+            .stat-label { font-size: 0.5rem; letter-spacing: 0.02em; }
+            
+            /* Modal responsiveness */
+            .bulk-modal-container { padding: 0.5rem; }
+            .bulk-modal-container > div:last-child { border-radius: 12px; }
+            .bulk-modal-container h3 { font-size: 1rem !important; }
+            .bulk-modal-container p { font-size: 0.75rem !important; }
+            .segmented-btn { padding: 0.25rem 0.5rem !important; font-size: 0.7rem !important; gap: 0.25rem !important; }
+            .segmented-badge { min-width: 1rem !important; height: 1rem !important; font-size: 0.65rem !important; }
         }
     </style>
 

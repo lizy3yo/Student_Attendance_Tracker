@@ -5,6 +5,148 @@
         <x-slot name="subtitle">Per-student attendance summary for a selected date range.</x-slot>
     </x-app-banner>
 
+    <style>
+        @media (max-width: 640px) {
+            .app-kpi-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 0.5rem !important;
+                margin-bottom: 1rem !important;
+            }
+            .app-kpi-card {
+                padding: 0.75rem 0.5rem !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                text-align: center !important;
+                justify-content: center !important;
+                min-height: 110px !important;
+            }
+            .app-kpi-value {
+                font-size: 1.25rem !important;
+            }
+            .app-kpi-label {
+                font-size: 0.65rem !important;
+            }
+            .app-kpi-icon {
+                width: 32px !important;
+                height: 32px !important;
+                margin-bottom: 0.35rem !important;
+                order: -1 !important;
+            }
+            .app-kpi-icon i {
+                width: 16px !important;
+                height: 16px !important;
+            }
+            .progress-bar-wrap {
+                width: 100% !important;
+                height: 4px !important;
+            }
+
+            .table-wrap table, 
+            .table-wrap thead, 
+            .table-wrap tbody, 
+            .table-wrap tr, 
+            .table-wrap td {
+                display: block;
+                width: 100%;
+            }
+            .table-wrap thead {
+                display: none;
+            }
+            .table-wrap tbody {
+                display: block !important;
+                padding: 0.5rem !important;
+            }
+            .table-wrap tr {
+                margin: 0 0 1rem 0 !important;
+                width: 100% !important;
+                box-sizing: border-box;
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                overflow: hidden;
+                background: #ffffff;
+                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+                padding: 1rem !important;
+            }
+            .table-wrap td {
+                padding: 0.4rem 0 !important;
+                border: none !important;
+                font-size: 0.85rem !important;
+            }
+            .table-wrap td:nth-child(3) {
+                font-size: 1rem !important;
+                font-weight: 700 !important;
+                border-bottom: 1px solid #f1f5f9 !important;
+                margin-bottom: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+            .table-wrap td::before {
+                display: block;
+                font-size: 0.6rem;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                margin-bottom: 0.15rem;
+            }
+            .table-wrap td:nth-child(1) { display: none; }
+            .table-wrap td:nth-child(2)::before { content: 'Student ID'; }
+            .table-wrap td:nth-child(3)::before { content: 'Full Name'; }
+            .table-wrap td:nth-child(4)::before { content: 'Program & Block'; }
+            .table-wrap td:nth-child(5)::before { content: 'Present'; display: inline; margin-right: 4px; }
+            .table-wrap td:nth-child(6)::before { content: 'Absent'; display: inline; margin-right: 4px; }
+            .table-wrap td:nth-child(7)::before { content: 'Late'; display: inline; margin-right: 4px; }
+            .table-wrap td:nth-child(8) { display: none; }
+            .table-wrap td:nth-child(9)::before { content: 'Attendance Rate'; }
+            .table-wrap td:nth-child(10)::before { content: 'Status'; }
+
+            .table-wrap td:nth-child(5),
+            .table-wrap td:nth-child(6),
+            .table-wrap td:nth-child(7) {
+                display: inline-block !important;
+                width: auto !important;
+                margin-right: 1rem !important;
+            }
+            
+            .badge {
+                font-size: 0.75rem !important;
+                padding: 0.2rem 0.5rem !important;
+            }
+
+            .app-page .card:first-child .card-body {
+                padding: 1rem !important;
+            }
+            .app-page .card:first-child form {
+                gap: 0.75rem !important;
+            }
+            .app-page .card:first-child form > div {
+                min-width: 0 !important;
+                flex: 1 1 100% !important;
+            }
+
+            .report-legend {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+                padding: 0.85rem 1rem !important;
+            }
+            .report-legend span {
+                display: flex !important;
+                align-items: flex-start !important;
+                gap: 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+            .report-legend i {
+                margin-top: 2px !important;
+            }
+
+            .card-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.5rem !important;
+                padding: 1rem !important;
+            }
+        }
+    </style>
+
     <div class="app-page">
     <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-body" style="padding:1rem 1.5rem;">
@@ -102,7 +244,7 @@
     </div>
 
     {{-- Legend --}}
-    <div style="margin:1rem 0 1.5rem;padding:1rem 1.25rem;background:var(--surface);border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-card);display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted);">
+    <div class="report-legend" style="margin:1rem 0 1.5rem;padding:1rem 1.25rem;background:var(--surface);border-radius:12px;border:1px solid var(--border-color);box-shadow:var(--shadow-card);display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted);">
         <span style="display:inline-flex;align-items:center;gap:.35rem;">
             <i data-lucide="pin" data-size="16" style="margin-right:.35rem;vertical-align:middle;"></i>
             <strong style="color:var(--text);">Threshold:</strong> ≥75% = Good &nbsp;|&nbsp; 50–74% = At Risk &nbsp;|&nbsp; &lt;50% = Critical

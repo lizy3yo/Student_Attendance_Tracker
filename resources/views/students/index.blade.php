@@ -15,6 +15,94 @@
             padding: 1rem;
             box-sizing: border-box;
         }
+
+        @media (max-width: 640px) {
+            .table-wrap {
+                overflow-x: hidden;
+            }
+            .table-wrap table, 
+            .table-wrap thead, 
+            .table-wrap tbody, 
+            .table-wrap tr, 
+            .table-wrap td {
+                display: block;
+                width: 100%;
+            }
+            .table-wrap thead {
+                display: none;
+            }
+            .table-wrap tbody {
+                display: block !important;
+                padding: 0.5rem !important;
+            }
+            .table-wrap tr {
+                margin: 0 0 1rem 0 !important;
+                width: 100% !important;
+                box-sizing: border-box;
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                overflow: hidden;
+                background: #ffffff;
+                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+                padding: 1rem !important;
+            }
+            .table-wrap td {
+                padding: 0.4rem 0 !important;
+                border: none !important;
+                font-size: 0.85rem !important;
+            }
+            .table-wrap td:nth-child(1) {
+                padding-top: 0 !important;
+                margin-bottom: 0.5rem !important;
+                border-bottom: 1px solid #f1f5f9 !important;
+                padding-bottom: 0.5rem !important;
+            }
+            .table-wrap td:nth-child(2) {
+                font-size: 1rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+            .table-wrap td::before {
+                display: block;
+                font-size: 0.6rem;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                margin-bottom: 0.15rem;
+            }
+            .table-wrap td:nth-child(1)::before { content: 'Student ID'; }
+            .table-wrap td:nth-child(2)::before { content: 'Name'; }
+            .table-wrap td:nth-child(3)::before { content: 'Program & Block'; }
+            .table-wrap td:nth-child(4)::before { content: 'Email'; }
+            .table-wrap td:nth-child(5)::before { content: 'Actions'; }
+
+            .table-wrap td:nth-child(5) {
+                padding-top: 0.75rem !important;
+                border-top: 1px solid #f1f5f9 !important;
+                margin-top: 0.5rem !important;
+            }
+            .table-wrap td:nth-child(5) > div {
+                flex-direction: row !important;
+                gap: 0.5rem !important;
+            }
+            .table-wrap td:nth-child(5) .btn {
+                flex: 1;
+                justify-content: center !important;
+                height: 36px !important;
+                font-size: 0.8rem !important;
+            }
+
+            .app-page .card:first-child .card-body {
+                padding: 1rem !important;
+            }
+            .app-page .card:first-child form {
+                gap: 0.75rem !important;
+            }
+            .app-page .card:first-child form > div {
+                min-width: 0 !important;
+                flex: 1 1 100% !important;
+            }
+        }
     </style>
 
     <x-app-banner title="Student records">

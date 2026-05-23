@@ -91,7 +91,6 @@
             border: 1px solid #e2e8f0;
             gap: 0.25rem;
             align-items: center;
-            flex-wrap: wrap;
         }
         .show-attendance-form {
             display: flex;
@@ -139,8 +138,95 @@
         @media (max-width: 1024px) {
             .show-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
-        @media (max-width: 560px) {
-            .show-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        @media (max-width: 640px) {
+            .show-kpi-grid { 
+                grid-template-columns: repeat(2, minmax(0, 1fr)); 
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            .show-kpi-card {
+                padding: 0.75rem 0.5rem;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                justify-content: center;
+                min-height: 110px;
+            }
+            .show-kpi-card > div:first-child {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .show-kpi-value {
+                font-size: 1.25rem;
+            }
+            .show-kpi-label {
+                font-size: 0.65rem;
+                margin-bottom: 0.15rem;
+            }
+            .show-kpi-sub {
+                display: none;
+            }
+            .show-kpi-icon {
+                width: 32px;
+                height: 32px;
+                margin-bottom: 0.35rem;
+                order: -1;
+            }
+            .show-kpi-icon i {
+                width: 16px !important;
+                height: 16px !important;
+            }
+
+            /* Roster and attendance cards - Full width (1 in a row) */
+            .show-roster-table tbody,
+            .show-attendance-table tbody {
+                display: block !important;
+                padding: 0.5rem !important;
+            }
+            .show-roster-table tr,
+            .show-attendance-table tr {
+                margin: 0 0 1rem 0 !important;
+                width: 100% !important;
+                padding: 1rem !important;
+                display: block !important;
+                border: 1px solid var(--border-color) !important;
+                border-radius: 12px !important;
+                background: #fff !important;
+            }
+            .show-roster-table td,
+            .show-attendance-table td {
+                padding: 0.4rem 0 !important;
+                display: block !important;
+                width: 100% !important;
+                border: none !important;
+                font-size: 0.85rem !important;
+            }
+            .show-roster-table td:nth-child(n+2)::before,
+            .show-attendance-table td:nth-child(n+2)::before {
+                font-size: 0.6rem !important;
+                margin-bottom: 0.15rem !important;
+                color: var(--text-muted) !important;
+                font-weight: 700 !important;
+            }
+            .show-roster-table td:nth-child(1),
+            .show-attendance-table td:nth-child(1) {
+                padding-top: 0 !important;
+                margin-bottom: 0.5rem !important;
+                border-bottom: 1px solid #f1f5f9 !important;
+                padding-bottom: 0.5rem !important;
+            }
+            .show-roster-table td:nth-child(5),
+            .show-attendance-table td:nth-child(4),
+            .show-attendance-table td:nth-child(5),
+            .show-attendance-table td:nth-child(6) {
+                padding-bottom: 0 !important;
+            }
+            .btn-sm {
+                padding: 0.4rem 0.75rem !important;
+                font-size: 0.75rem !important;
+                height: 32px !important;
+            }
         }
 
         @media (max-width: 1024px) {
@@ -174,6 +260,23 @@
                 width: 100%;
                 overflow-x: auto;
                 justify-content: flex-start;
+                flex-wrap: nowrap !important;
+                -webkit-overflow-scrolling: touch;
+                padding: 0.2rem;
+            }
+            .show-attendance-filter-group::-webkit-scrollbar {
+                display: none;
+            }
+
+            .segmented-btn {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.75rem !important;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .segmented-badge {
+                font-size: 0.65rem !important;
+                padding: 0 0.3rem !important;
             }
 
             .show-attendance-form {
@@ -202,6 +305,20 @@
 
             .show-action-footer .btn {
                 flex: 1 1 100%;
+            }
+
+            .attendance-bulk-actions {
+                padding: 0.5rem 0.75rem !important;
+                margin: 0.5rem 1rem 0 !important;
+                justify-content: center !important;
+                text-align: center;
+            }
+            .attendance-bulk-actions .bulk-label {
+                display: none;
+            }
+            .attendance-bulk-actions .btn-sm {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.7rem !important;
             }
         }
 
@@ -1137,13 +1254,14 @@
 
                         <!-- Bulk Actions Block -->
                         <div x-show="anySelected && isToday" x-transition
-                             style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1.25rem; margin: 1rem 1.5rem 0.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                             style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1.25rem; margin: 1rem 1.5rem 0.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;"
+                             class="attendance-bulk-actions">
                             <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: #166534;">
                                 <i data-lucide="check-square" data-size="18"></i>
                                 <span>Selected <span x-text="studentList.filter(s => s.selected).length"></span> student(s)</span>
                             </div>
-                            <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                <span style="font-size: 0.8rem; color: #166534; font-weight: 600; margin-right: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Bulk Action:</span>
+                            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                <span class="bulk-label" style="font-size: 0.8rem; color: #166534; font-weight: 600; margin-right: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Bulk Action:</span>
                                 <button type="button" @click="pendingBulkStatus = 'present'; showBulkModal = true;" class="btn btn-secondary btn-sm" style="border-radius: 6px; padding: 0.35rem 0.65rem; background: #ffffff; border-color: #86efac; color: #166534; display: inline-flex; align-items: center; gap: 0.25rem;">
                                     <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span> Present
                                 </button>

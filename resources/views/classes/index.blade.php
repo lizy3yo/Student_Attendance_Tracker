@@ -107,10 +107,151 @@
             color: #dc2626;
         }
 
-        /* Filters: keep semester and year inline on small screens */
-        .filters-inline .filter-item { min-width: 0; }
         @media (max-width: 640px) {
-            .filters-inline .filter-item { flex: 1 1 0; width: auto; }
+            .classes-kpi-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
+            }
+            .classes-kpi-card {
+                padding: 0.75rem 0.5rem;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                justify-content: center;
+                min-height: 110px;
+            }
+            .classes-kpi-card > div:first-child {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .classes-kpi-value {
+                font-size: 1.25rem;
+            }
+            .classes-kpi-card div[style*="font-size: 0.85rem"] {
+                font-size: 0.65rem !important;
+                margin-bottom: 0.15rem !important;
+            }
+            .classes-kpi-card div[style*="font-size: 0.75rem"] {
+                display: none; 
+            }
+            .classes-kpi-card div[style*="width: 48px"] {
+                width: 32px !important;
+                height: 32px !important;
+                margin-bottom: 0.35rem;
+                order: -1;
+            }
+            .classes-kpi-card div[style*="width: 48px"] i {
+                width: 16px !important;
+                height: 16px !important;
+            }
+
+            /* Classes Grid 1 in a row - Fixed broken layout */
+            .classes-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+            }
+            .classes-grid .card {
+                padding: 0 !important;
+                border-radius: 12px !important;
+            }
+            .classes-grid .card > div:first-child {
+                padding: 1.25rem !important;
+            }
+            .classes-grid h3 {
+                font-size: 1rem !important;
+            }
+            .classes-grid div[style*="font-size: 0.9rem"] {
+                font-size: 0.8rem !important;
+            }
+            .classes-grid .badge {
+                font-size: 0.7rem !important;
+                padding: 0.15rem 0.4rem !important;
+            }
+            .classes-grid div[style*="margin-top: 1rem; border-top"] {
+                margin-top: 1rem !important;
+                padding: 0.75rem 0 !important;
+                gap: 0.6rem !important;
+            }
+            .classes-grid div[style*="font-size: 0.85rem"] {
+                font-size: 0.8rem !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.15rem !important;
+            }
+            .classes-grid div[style*="font-size: 0.85rem"] span:last-child {
+                font-size: 0.85rem !important;
+            }
+            
+            .class-card-actions {
+                padding: 0.75rem 1rem !important;
+                grid-template-columns: 1fr 1fr auto !important;
+                gap: 0.4rem !important;
+            }
+            .class-card-action {
+                padding: 0.45rem 0.6rem !important;
+                font-size: 0.72rem !important;
+                height: 32px !important;
+            }
+            .class-card-action i {
+                width: 14px !important;
+                height: 14px !important;
+            }
+
+            .filters-inline {
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                gap: 0.5rem !important;
+            }
+            .filters-inline .filter-item { 
+                flex: none !important; 
+                width: 100% !important; 
+                min-width: 0 !important; 
+            }
+            .filters-inline select { 
+                font-size: 0.8rem !important; 
+                height: 38px !important; 
+                padding: 0 0.5rem !important; 
+                width: 100% !important;
+            }
+            
+            form[action*="classes.index"] {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+                align-items: stretch !important;
+            }
+            form[action*="classes.index"] > div:first-child {
+                width: 100% !important;
+                min-width: 0 !important;
+                flex: none !important;
+            }
+            form[action*="classes.index"] input[name="search"],
+            form[action*="classes.index"] .filters-inline select,
+            form[action*="classes.index"] .btn-primary,
+            form[action*="classes.index"] .btn-secondary {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+            form[action*="classes.index"] .filters-inline select {
+                padding: 0 0.75rem !important;
+            }
+            form[action*="classes.index"] > div:last-child {
+                width: 100% !important;
+                margin-left: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            form[action*="classes.index"] > div:last-child a,
+            form[action*="classes.index"] > div:last-child button {
+                width: 100% !important;
+                flex: none !important;
+                justify-content: center !important;
+                white-space: nowrap !important;
+            }
         }
 
         @media (min-width: 768px) {
@@ -275,7 +416,7 @@
 
         {{-- Classes Grid --}}
         @if((($classes ?? collect())->isNotEmpty()))
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+            <div class="classes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
                 @foreach(($classes ?? collect()) as $c)
                     @php /** @var \App\Models\SchoolClass $c */ @endphp
                     <div class="card" style="overflow: visible; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s;">
